@@ -12,7 +12,7 @@ export default function SamplePicker({ samples, selected, onSelect }: Props) {
 
   return (
     <div className="sample-picker">
-      <h3 className="sample-picker-title">Or choose a sample X-ray</h3>
+      <h3 className="sample-picker-title">Ou escolha uma radiografia de exemplo</h3>
       <div className="sample-grid">
         {samples.map((s) => (
           <button

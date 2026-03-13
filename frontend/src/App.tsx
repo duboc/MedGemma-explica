@@ -42,7 +42,7 @@ export default function App() {
   useEffect(() => {
     fetchStructures()
       .then(setStructures)
-      .catch(() => setError("Failed to load anatomical structures"));
+      .catch(() => setError("Falha ao carregar estruturas anatômicas"));
     fetchSamples()
       .then(setSamples)
       .catch(() => {});
@@ -98,7 +98,7 @@ export default function App() {
       setResult(res);
       refreshHistory();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Analysis failed");
+      setError(err instanceof Error ? err.message : "Falha na análise");
     } finally {
       setLoading(false);
     }
@@ -172,12 +172,12 @@ export default function App() {
           >
             {loading ? (
               <>
-                <span className="spinner" /> Analyzing {structureCount} structure{structureCount !== 1 ? "s" : ""}...
+                <span className="spinner" /> Analisando {structureCount} estrutura{structureCount !== 1 ? "s" : ""}...
               </>
             ) : mockMode ? (
-              `Analyze${structureCount > 0 ? ` (${structureCount})` : ""} (Mock)`
+              `Analisar${structureCount > 0 ? ` (${structureCount})` : ""} (Demo)`
             ) : (
-              `Analyze${structureCount > 0 ? ` ${structureCount} structure${structureCount !== 1 ? "s" : ""}` : ""} with MedGemma`
+              `Analisar${structureCount > 0 ? ` ${structureCount} estrutura${structureCount !== 1 ? "s" : ""}` : ""} com MedGemma`
             )}
           </button>
 
@@ -195,10 +195,10 @@ export default function App() {
           ) : (
             <div className="results-empty">
               <div className="results-empty-icon">&#x1F50D;</div>
-              <h3>No analysis yet</h3>
+              <h3>Nenhuma análise ainda</h3>
               <p>
-                Upload or select a chest X-ray, choose one or more anatomical
-                structures, and click Analyze to see results here.
+                Envie ou selecione uma radiografia de tórax, escolha uma ou mais
+                estruturas anatômicas e clique em Analisar para ver os resultados aqui.
               </p>
             </div>
           )}

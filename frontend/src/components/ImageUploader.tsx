@@ -27,7 +27,7 @@ export default function ImageUploader({ onFileSelected, previewUrl }: Props) {
 
   return (
     <div className="uploader-section">
-      <h2>1. Upload Chest X-ray</h2>
+      <h2>1. Enviar Radiografia de Tórax</h2>
       <div
         className={`drop-zone ${dragActive ? "drop-zone--active" : ""}`}
         onDragOver={(e) => {
@@ -39,12 +39,12 @@ export default function ImageUploader({ onFileSelected, previewUrl }: Props) {
         onClick={() => document.getElementById("file-input")?.click()}
       >
         {previewUrl ? (
-          <img src={previewUrl} alt="X-ray preview" className="preview-image" />
+          <img src={previewUrl} alt="Pré-visualização da radiografia" className="preview-image" />
         ) : (
           <div className="drop-zone-content">
             <div className="drop-zone-icon">+</div>
-            <p>Drag & drop a chest X-ray image here</p>
-            <p className="drop-zone-hint">or click to browse (PNG, JPEG)</p>
+            <p>Arraste e solte uma radiografia de tórax aqui</p>
+            <p className="drop-zone-hint">ou clique para selecionar (PNG, JPEG)</p>
           </div>
         )}
       </div>

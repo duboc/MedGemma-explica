@@ -11,11 +11,11 @@ interface Props {
 }
 
 const FALLBACK_QUESTIONS = [
-  "What would this look like if the patient had pneumonia?",
-  "How do I systematically read a chest X-ray?",
-  "What are the most common pathologies affecting these structures?",
-  "Can you quiz me on identifying this structure?",
-  "What is the cardiothoracic ratio and is it normal here?",
+  "Como ficaria esta imagem se o paciente tivesse pneumonia?",
+  "Como fazer uma leitura sistemática de uma radiografia de tórax?",
+  "Quais são as patologias mais comuns que afetam estas estruturas?",
+  "Pode me testar na identificação desta estrutura?",
+  "Qual é a relação cardiotorácica e está normal aqui?",
 ];
 
 const SUGGESTION_ICONS = [
@@ -38,7 +38,7 @@ const ChatBubble = memo(function ChatBubble({
   return (
     <div className={`chat-message chat-message--${role}`}>
       <div className="chat-message-label">
-        {role === "user" ? "You" : "MedGemma"}
+        {role === "user" ? "Você" : "MedGemma"}
       </div>
       {role === "assistant" ? (
         <div
@@ -97,7 +97,7 @@ export default function ChatPanel({ result, mockMode, onSave }: Props) {
     } catch {
       const withError = [
         ...updated,
-        { role: "assistant" as const, content: "Sorry, I couldn't process that question. Please try again." },
+        { role: "assistant" as const, content: "Desculpe, não consegui processar essa pergunta. Por favor, tente novamente." },
       ];
       setMessages(withError);
       onSave?.(withError);
@@ -115,17 +115,17 @@ export default function ChatPanel({ result, mockMode, onSave }: Props) {
   return (
     <div className="chat-panel">
       <div className="chat-header">
-        <h3>Ask About This X-ray</h3>
+        <h3>Pergunte Sobre Este Raio-X</h3>
         <span className="rv-badge">MedGemma Q&A</span>
       </div>
 
       <div className="chat-messages">
         {messages.length === 0 && (
           <div className="chat-empty">
-            <p>Ask questions about the structures, findings, or related pathology.</p>
+            <p>Faça perguntas sobre as estruturas, achados ou patologias relacionadas.</p>
             {loadingSuggestions ? (
               <div className="chat-suggestions-loading">
-                <span className="spinner" /> Generating questions for this X-ray...
+                <span className="spinner" /> Gerando perguntas para este Raio-X...
               </div>
             ) : (
               <div className="chat-suggestions-grid">
@@ -152,7 +152,7 @@ export default function ChatPanel({ result, mockMode, onSave }: Props) {
           <div className="chat-message chat-message--assistant">
             <div className="chat-message-label">MedGemma</div>
             <div className="chat-message-content chat-typing">
-              <span className="spinner" /> Thinking...
+              <span className="spinner" /> Pensando...
             </div>
           </div>
         )}
@@ -166,7 +166,7 @@ export default function ChatPanel({ result, mockMode, onSave }: Props) {
           className="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about the X-ray findings..."
+          placeholder="Pergunte sobre os achados do Raio-X..."
           disabled={loading}
         />
         <button
@@ -174,7 +174,7 @@ export default function ChatPanel({ result, mockMode, onSave }: Props) {
           className="chat-send-btn"
           disabled={!input.trim() || loading}
         >
-          Send
+          Enviar
         </button>
       </form>
     </div>

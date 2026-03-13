@@ -480,12 +480,12 @@ async def suggest_questions_endpoint(request: Request):
         names = ", ".join(structure_names)
         return {
             "questions": [
-                f"What does the {structure_names[0]} look like on this X-ray and is it within normal limits?",
-                f"If this patient had pneumonia, how would the appearance of the {structure_names[0]} change?",
-                "What is the cardiothoracic ratio on this image and what does it indicate?",
-                "Can you walk me through a systematic ABCDE reading of this chest X-ray?",
-                f"What are the most common pathologies that affect the {names}?",
-                "What subtle findings might a beginner miss on this X-ray?",
+                f"Como o(a) {structure_names[0]} aparece neste Raio-X e está dentro dos limites normais?",
+                f"Se este paciente tivesse pneumonia, como a aparência do(a) {structure_names[0]} mudaria?",
+                "Qual é a relação cardiotorácica nesta imagem e o que ela indica?",
+                "Pode me guiar por uma leitura sistemática ABCDE desta radiografia de tórax?",
+                f"Quais são as patologias mais comuns que afetam o(a) {names}?",
+                "Quais achados sutis um iniciante poderia perder neste Raio-X?",
             ]
         }
     else:

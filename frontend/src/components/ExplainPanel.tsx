@@ -10,10 +10,10 @@ interface Props {
 }
 
 const LEVELS = [
-  { value: "pre_med", label: "Pre-Med" },
-  { value: "medical_student", label: "Medical Student" },
-  { value: "resident", label: "Resident" },
-  { value: "attending", label: "Attending" },
+  { value: "pre_med", label: "Pré-Medicina" },
+  { value: "medical_student", label: "Estudante de Medicina" },
+  { value: "resident", label: "Residente" },
+  { value: "attending", label: "Médico Assistente" },
 ];
 
 const SECTION_ICONS: Record<string, string> = {
@@ -63,7 +63,7 @@ export default function ExplainPanel({ result, mockMode, onSave }: Props) {
       setDeepDive(data);
       onSave?.({ level, explanation: data });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate explanation");
+      setError(err instanceof Error ? err.message : "Falha ao gerar explicação");
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ export default function ExplainPanel({ result, mockMode, onSave }: Props) {
       </div>
 
       <div className="explain-controls">
-        <label className="explain-level-label">Explanation level:</label>
+        <label className="explain-level-label">Nível de explicação:</label>
         <div className="explain-level-buttons">
           {LEVELS.map((l) => (
             <button
@@ -115,12 +115,12 @@ export default function ExplainPanel({ result, mockMode, onSave }: Props) {
         >
           {loading ? (
             <>
-              <span className="spinner" /> Analyzing with MedGemma...
+              <span className="spinner" /> Analisando com MedGemma...
             </>
           ) : deepDive ? (
-            "Regenerate"
+            "Regenerar"
           ) : (
-            "Generate Deep Dive"
+            "Gerar Deep Dive"
           )}
         </button>
       </div>
@@ -134,8 +134,8 @@ export default function ExplainPanel({ result, mockMode, onSave }: Props) {
           )}
 
           <div className="fr-toolbar">
-            <button className="fr-toolbar-btn" onClick={expandAll}>Expand All</button>
-            <button className="fr-toolbar-btn" onClick={collapseAll}>Collapse All</button>
+            <button className="fr-toolbar-btn" onClick={expandAll}>Expandir Tudo</button>
+            <button className="fr-toolbar-btn" onClick={collapseAll}>Recolher Tudo</button>
           </div>
 
           {deepDive.sections.map((section) => (
@@ -199,11 +199,10 @@ function SectionRenderer({
                   <div className="dd-comparison-header">{comp.structure}</div>
                   <div className="dd-comparison-row">
                     <div className="dd-comparison-col dd-comparison-col--normal">
-                      <div className="dd-comparison-label">Normal</div>
-                      <p>{comp.normal}</p>
+                      <div className="dd-comparison-label">Normal</div>                      <p>{comp.normal}</p>
                     </div>
                     <div className="dd-comparison-col dd-comparison-col--abnormal">
-                      <div className="dd-comparison-label">Abnormal Signs</div>
+                      <div className="dd-comparison-label">Sinais Anormais</div>
                       <ul>
                         {comp.abnormal_signs.map((sign, j) => (
                           <li key={j}>{sign}</li>
@@ -212,7 +211,7 @@ function SectionRenderer({
                     </div>
                   </div>
                   <div className="dd-comparison-this-image">
-                    <strong>This Image:</strong> {comp.this_image}
+                    <strong>Nesta Imagem:</strong> {comp.this_image}
                   </div>
                 </div>
               ))}
@@ -227,7 +226,7 @@ function SectionRenderer({
                   <div className="dd-connection-condition">{conn.condition}</div>
                   <p className="dd-connection-relevance">{conn.relevance}</p>
                   <div className="dd-connection-look-for">
-                    <span className="dd-connection-look-label">Look for:</span>{" "}
+                    <span className="dd-connection-look-label">Procurar:</span>{" "}
                     {conn.what_to_look_for}
                   </div>
                 </div>

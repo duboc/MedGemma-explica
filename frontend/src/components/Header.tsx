@@ -9,24 +9,24 @@ export default function Header({ mockMode, onToggleMock }: Props) {
       <div className="header-content">
         <h1 className="header-title">MedGemma Explica</h1>
         <p className="header-subtitle">
-          Educational Chest X-ray Anatomy Localization
+          Localização Anatômica Educacional em Radiografias de Tórax
         </p>
       </div>
       <div className="header-right">
         <label className="mock-toggle">
           <span className="mock-label">
-            {mockMode ? "Mock Mode" : "Live Mode"}
+            {mockMode ? "Modo Demo" : "Modo Real"}
           </span>
           <button
             className={`toggle-switch ${mockMode ? "toggle-switch--on" : ""}`}
             onClick={onToggleMock}
-            aria-label="Toggle mock mode"
+            aria-label="Alternar modo demo"
           >
             <span className="toggle-knob" />
           </button>
         </label>
         <div className="header-badge">
-          MedGemma 1.5 + Gemini Flash on Vertex AI
+          MedGemma 1.5 + Gemini Flash no Vertex AI
         </div>
       </div>
     </header>

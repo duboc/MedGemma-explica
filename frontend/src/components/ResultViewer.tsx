@@ -9,10 +9,10 @@ import FindingsReport from "./FindingsReport";
 type TabKey = "findings" | "report" | "explain" | "chat";
 
 const TAB_CONFIG: { key: TabKey; label: string; icon: string; desc: string }[] = [
-  { key: "findings", label: "Findings", icon: "\u{1F4CB}", desc: "Structure observations" },
-  { key: "report", label: "Full Report", icon: "\u{1F9EB}", desc: "Comprehensive analysis" },
-  { key: "explain", label: "Deep Dive", icon: "\u{1F393}", desc: "Educational breakdown" },
-  { key: "chat", label: "Q&A Chat", icon: "\u{1F4AC}", desc: "Ask questions" },
+  { key: "findings", label: "Achados", icon: "\u{1F4CB}", desc: "Observações por estrutura" },
+  { key: "report", label: "Relatório", icon: "\u{1F9EB}", desc: "Análise completa" },
+  { key: "explain", label: "Deep Dive", icon: "\u{1F393}", desc: "Aprofundamento educacional" },
+  { key: "chat", label: "Perguntas", icon: "\u{1F4AC}", desc: "Tire dúvidas" },
 ];
 
 interface Props {
@@ -121,15 +121,15 @@ export default function ResultViewer({ result, mockMode, onResultUpdated }: Prop
         <button
           className="rv-image-toggle"
           onClick={() => setImageCollapsed((c) => !c)}
-          title={imageCollapsed ? "Show X-ray" : "Minimize X-ray"}
+          title={imageCollapsed ? "Mostrar Raio-X" : "Minimizar Raio-X"}
         >
-          {imageCollapsed ? "\u{1F4F7} Show X-ray" : "\u25B2 Minimize"}
+          {imageCollapsed ? "\u{1F4F7} Mostrar Raio-X" : "\u25B2 Minimizar"}
         </button>
 
         {!imageCollapsed && (
           <div className="rv-image-area">
             {imageError ? (
-              <div className="rv-image-error">Unable to load the analyzed image.</div>
+              <div className="rv-image-error">Não foi possível carregar a imagem analisada.</div>
             ) : (
               <canvas ref={canvasRef} />
             )}
@@ -147,7 +147,7 @@ export default function ResultViewer({ result, mockMode, onResultUpdated }: Prop
               </div>
             )}
             {result.bounding_boxes.length === 0 && !imageError && (
-              <p className="rv-warning">No bounding boxes detected.</p>
+              <p className="rv-warning">Nenhuma caixa delimitadora detectada.</p>
             )}
           </div>
         )}
@@ -210,8 +210,8 @@ export default function ResultViewer({ result, mockMode, onResultUpdated }: Prop
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   normal: { label: "Normal", className: "sf-status--normal" },
-  abnormal: { label: "Abnormal", className: "sf-status--abnormal" },
-  borderline: { label: "Borderline", className: "sf-status--borderline" },
+  abnormal: { label: "Anormal", className: "sf-status--abnormal" },
+  borderline: { label: "Limítrofe", className: "sf-status--borderline" },
 };
 
 function FindingsTab({
@@ -249,13 +249,13 @@ function FindingsTab({
   return (
     <div className="sf-panel">
       <div className="sf-header">
-        <h3>Structure Findings</h3>
-        <span className="rv-badge">Powered by MedGemma + Gemini</span>
+        <h3>Achados por Estrutura</h3>
+        <span className="rv-badge">MedGemma + Gemini</span>
       </div>
 
       {loading && findings.length === 0 && (
         <div className="sf-loading">
-          <span className="spinner" /> Extracting findings from analysis...
+          <span className="spinner" /> Extraindo achados da análise...
         </div>
       )}
 
@@ -274,17 +274,17 @@ function FindingsTab({
                     <p className="sf-appearance">{f.appearance}</p>
                     {f.notable && (
                       <div className="sf-notable">
-                        <strong>Notable:</strong> {f.notable}
+                        <strong>Destaque:</strong> {f.notable}
                       </div>
                     )}
                     {edu && (
                       <div className="sf-edu">
                         <div className="sf-edu-col">
-                          <span className="sf-edu-label">Anatomy</span>
+                          <span className="sf-edu-label">Anatomia</span>
                           <p>{edu.description}</p>
                         </div>
                         <div className="sf-edu-col">
-                          <span className="sf-edu-label">Clinical Relevance</span>
+                          <span className="sf-edu-label">Relevância Clínica</span>
                           <p>{f.clinical_note || edu.clinical_relevance}</p>
                         </div>
                       </div>
@@ -302,11 +302,11 @@ function FindingsTab({
                 <div className="sf-card-body">
                   <div className="sf-edu">
                     <div className="sf-edu-col">
-                      <span className="sf-edu-label">Anatomy</span>
+                      <span className="sf-edu-label">Anatomia</span>
                       <p>{info.description}</p>
                     </div>
                     <div className="sf-edu-col">
-                      <span className="sf-edu-label">Clinical Relevance</span>
+                      <span className="sf-edu-label">Relevância Clínica</span>
                       <p>{info.clinical_relevance}</p>
                     </div>
                   </div>
@@ -316,7 +316,7 @@ function FindingsTab({
       </div>
 
       <details className="model-response">
-        <summary>Model Reasoning</summary>
+        <summary>Raciocínio do Modelo</summary>
         <pre className="response-text">{result.response_text}</pre>
       </details>
     </div>

@@ -14,8 +14,8 @@ const CONTENT_INDICATORS: {
   label: string;
   icon: string;
 }[] = [
-  { key: "structure_findings", label: "Findings", icon: "\u{1F4CB}" },
-  { key: "findings_report", label: "Report", icon: "\u{1F9EB}" },
+  { key: "structure_findings", label: "Achados", icon: "\u{1F4CB}" },
+  { key: "findings_report", label: "Relatório", icon: "\u{1F9EB}" },
   { key: "deep_dive", label: "Deep Dive", icon: "\u{1F393}" },
   { key: "chat_messages", label: "Chat", icon: "\u{1F4AC}" },
 ];
@@ -39,9 +39,9 @@ export default function HistoryPanel({
   return (
     <div className="history-bar">
       <div className="history-header">
-        <h2>Analysis History</h2>
+        <h2>Histórico de Análises</h2>
         <button className="history-clear-btn" onClick={onClearAll}>
-          Clear All
+          Limpar Tudo
         </button>
       </div>
       <div className="history-scroll">
@@ -86,7 +86,7 @@ export default function HistoryPanel({
                 )}
                 <span className="history-card-date">
                   {(a.updated_at || a.created_at)
-                    ? new Date(a.updated_at || a.created_at!).toLocaleString(undefined, {
+                    ? new Date(a.updated_at || a.created_at!).toLocaleString("pt-BR", {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
@@ -101,7 +101,7 @@ export default function HistoryPanel({
                   e.stopPropagation();
                   onDelete(a.id);
                 }}
-                title="Delete this analysis"
+                title="Excluir esta análise"
               >
                 &times;
               </button>

@@ -24,7 +24,9 @@ MEDGEMMA_PROMPT = """Analyze this chest X-ray image comprehensively. Cover ALL o
 
 4. CLINICAL PEARLS: Normal findings to appreciate, key measurements, common interpretation pitfalls, and what additional imaging might help.
 
-Be thorough and specific to THIS image."""
+Be thorough and specific to THIS image.
+
+IMPORTANT: Write your entire response in Brazilian Portuguese (pt-BR)."""
 
 # Gemini prompt to structure MedGemma's raw output into JSON
 GEMINI_STRUCTURE_PROMPT = """Convert this radiology analysis into structured JSON. The input is a raw analysis of a chest X-ray.
@@ -83,7 +85,8 @@ Rules:
 - Include at least 4 pathology scenarios
 - Include at least 3 clinical pearl categories
 - Use appropriate medical emojis for icons
-- Keep text concise but informative"""
+- Keep text concise but informative
+- IMPORTANT: Write ALL text content values in Brazilian Portuguese (pt-BR). Keep JSON keys in English."""
 
 
 def generate_findings_report(image_bytes: bytes, structure_names: list[str]) -> dict:
@@ -135,9 +138,9 @@ def generate_findings_report(image_bytes: bytes, structure_names: list[str]) -> 
     try:
         structured = _parse_with_gemini(raw_text)
         structured["disclaimer"] = (
-            "This analysis is for educational purposes only and should not be considered "
-            "a substitute for professional medical advice. Always consult a qualified "
-            "healthcare provider for clinical decision-making."
+            "Esta análise é apenas para fins educacionais e não deve ser considerada "
+            "um substituto para aconselhamento médico profissional. Sempre consulte um "
+            "profissional de saúde qualificado para tomada de decisões clínicas."
         )
         return structured
     except Exception as e:
@@ -203,7 +206,7 @@ def _build_fallback_report(raw_text: str) -> dict:
         "pathology_scenarios": [],
         "clinical_pearls": [],
         "raw_text": raw_text,
-        "disclaimer": "This analysis is for educational purposes only. Gemini structuring was unavailable; showing extracted findings.",
+        "disclaimer": "Esta análise é apenas para fins educacionais. A estruturação pelo Gemini não estava disponível; mostrando achados extraídos.",
     }
 
 
@@ -231,7 +234,8 @@ Rules:
 - Include one entry per structure in the STRUCTURES list
 - Base observations on what the analysis text ACTUALLY says about this image
 - If the analysis doesn't mention a structure, describe its expected appearance
-- status should reflect what was observed on THIS image"""
+- status should reflect what was observed on THIS image
+- IMPORTANT: Write ALL text content values in Brazilian Portuguese (pt-BR). Keep JSON keys in English."""
 
 
 def extract_structure_findings(raw_text: str, structure_names: list[str]) -> list[dict]:
@@ -265,7 +269,7 @@ def extract_structure_findings(raw_text: str, structure_names: list[str]) -> lis
     except (json.JSONDecodeError, AttributeError):
         logger.error("Failed to parse structure findings JSON")
         return [
-            {"name": n, "appearance": "Analysis available", "status": "normal", "notable": "", "clinical_note": ""}
+            {"name": n, "appearance": "Análise disponível", "status": "normal", "notable": "", "clinical_note": ""}
             for n in structure_names
         ]
 
@@ -274,34 +278,34 @@ def mock_structure_findings(structure_names: list[str]) -> list[dict]:
     """Return mock per-structure findings for UI testing."""
     mock_data = {
         "right lung": {
-            "appearance": "Clear lung field with normal bronchovascular markings extending to the periphery",
+            "appearance": "Campo pulmonar claro com marcas broncovasculares normais estendendo-se até a periferia",
             "status": "normal",
-            "notable": "No focal consolidation, mass, or pleural effusion. Sharp right costophrenic angle.",
-            "clinical_note": "The right main bronchus is wider and more vertical, making it the most common site for aspirated foreign bodies.",
+            "notable": "Sem consolidação focal, massa ou derrame pleural. Ângulo costofrênico direito agudo.",
+            "clinical_note": "O brônquio principal direito é mais largo e mais vertical, tornando-o o local mais comum para corpos estranhos aspirados.",
         },
         "left lung": {
-            "appearance": "Clear lung field, partially obscured by the cardiac silhouette in the retrocardiac region",
+            "appearance": "Campo pulmonar claro, parcialmente obscurecido pela silhueta cardíaca na região retrocardíaca",
             "status": "normal",
-            "notable": "No consolidation or effusion. The lingula and left lower lobe appear clear.",
-            "clinical_note": "Always check the retrocardiac space carefully - left lower lobe pneumonia can hide behind the heart.",
+            "notable": "Sem consolidação ou derrame. A língula e o lobo inferior esquerdo parecem claros.",
+            "clinical_note": "Sempre verifique o espaço retrocardíaco cuidadosamente - pneumonia do lobo inferior esquerdo pode se esconder atrás do coração.",
         },
         "heart": {
-            "appearance": "Cardiac silhouette with well-defined borders, CTR approximately 0.48-0.50",
+            "appearance": "Silhueta cardíaca com bordas bem definidas, RCT aproximadamente 0,48-0,50",
             "status": "borderline",
-            "notable": "Borderline cardiac size at the upper limit of normal. Left heart border slightly prominent.",
-            "clinical_note": "CTR > 0.5 on a PA film suggests cardiomegaly. AP films magnify the heart by ~20%, so always confirm PA positioning.",
+            "notable": "Tamanho cardíaco limítrofe no limite superior do normal. Borda cardíaca esquerda levemente proeminente.",
+            "clinical_note": "RCT > 0,5 em um filme PA sugere cardiomegalia. Filmes AP aumentam o coração em ~20%, então sempre confirme o posicionamento PA.",
         },
         "trachea": {
-            "appearance": "Air-filled tubular structure in the midline of the upper mediastinum",
+            "appearance": "Estrutura tubular cheia de ar na linha média do mediastino superior",
             "status": "normal",
-            "notable": "Midline position with no deviation. Carina at approximately T4-T5 level.",
-            "clinical_note": "Tracheal deviation can indicate tension pneumothorax (away from affected side) or atelectasis (toward affected side).",
+            "notable": "Posição na linha média sem desvio. Carina aproximadamente no nível T4-T5.",
+            "clinical_note": "Desvio traqueal pode indicar pneumotórax hipertensivo (afastando-se do lado afetado) ou atelectasia (em direção ao lado afetado).",
         },
         "aortic arch": {
-            "appearance": "Rounded opacity visible on the left side of the mediastinum above the left hilum",
+            "appearance": "Opacidade arredondada visível no lado esquerdo do mediastino acima do hilo esquerdo",
             "status": "normal",
-            "notable": "Normal caliber with no unfolding or calcification visible.",
-            "clinical_note": "A widened mediastinum (>8cm) may suggest aortic dissection or aneurysm - measure carefully.",
+            "notable": "Calibre normal sem desdobramento ou calcificação visível.",
+            "clinical_note": "Um mediastino alargado (>8cm) pode sugerir dissecção aórtica ou aneurisma - meça cuidadosamente.",
         },
     }
 
@@ -313,179 +317,179 @@ def mock_structure_findings(structure_names: list[str]) -> list[dict]:
         else:
             results.append({
                 "name": normalized,
-                "appearance": f"The {name} is visible in its expected anatomical position",
+                "appearance": f"O {name} é visível em sua posição anatômica esperada",
                 "status": "normal",
-                "notable": "No acute abnormality identified.",
-                "clinical_note": f"The {name} is an important landmark in systematic chest X-ray interpretation.",
+                "notable": "Nenhuma anormalidade aguda identificada.",
+                "clinical_note": f"O {name} é um marco importante na interpretação sistemática de radiografia de tórax.",
             })
     return results
 
 
 def mock_findings_report(structure_names: list[str]) -> dict:
     """Return a realistic mock findings report for UI testing."""
-    names = ", ".join(structure_names) if structure_names else "chest structures"
+    names = ", ".join(structure_names) if structure_names else "estruturas torácicas"
     return {
         "overall_assessment": {
-            "summary": f"PA chest radiograph demonstrates generally normal cardiopulmonary anatomy with focus on {names}. No acute cardiopulmonary process identified.",
+            "summary": f"Radiografia de tórax PA demonstra anatomia cardiopulmonar geralmente normal com foco em {names}. Nenhum processo cardiopulmonar agudo identificado.",
             "findings": [
                 {
                     "structure": "Heart",
                     "status": "borderline",
-                    "finding": "Borderline cardiac silhouette size",
-                    "detail": "Cardiothoracic ratio (CTR) approximately 0.48-0.50, at the upper limit of normal. Left heart border slightly prominent.",
+                    "finding": "Tamanho limítrofe da silhueta cardíaca",
+                    "detail": "Índice cardiotorácico (ICT) aproximadamente 0,48-0,50, no limite superior da normalidade. Borda cardíaca esquerda levemente proeminente.",
                 },
                 {
                     "structure": "Right Lung",
                     "status": "normal",
-                    "finding": "Clear lung field",
-                    "detail": "Well-aerated with no focal consolidation, mass, or pleural effusion. Normal bronchovascular markings throughout.",
+                    "finding": "Campo pulmonar limpo",
+                    "detail": "Bem aerado, sem consolidação focal, massa ou derrame pleural. Marcas broncovasculares normais por todo o pulmão.",
                 },
                 {
                     "structure": "Left Lung",
                     "status": "normal",
-                    "finding": "Clear lung field",
-                    "detail": "Left lung field appears clear. Cardiac silhouette partially obscures the retrocardiac region, but no obvious abnormality identified.",
+                    "finding": "Campo pulmonar limpo",
+                    "detail": "Campo pulmonar esquerdo aparenta estar limpo. A silhueta cardíaca obscurece parcialmente a região retrocardíaca, mas nenhuma anormalidade óbvia identificada.",
                 },
                 {
                     "structure": "Mediastinum",
                     "status": "normal",
-                    "finding": "Midline, not widened",
-                    "detail": "The mediastinum is midline and not widened. Aortic arch is within normal limits.",
+                    "finding": "Centralizado, não alargado",
+                    "detail": "O mediastino está centralizado e não alargado. O arco aórtico está dentro dos limites normais.",
                 },
                 {
                     "structure": "Diaphragm",
                     "status": "normal",
-                    "finding": "Smooth, well-defined hemidiaphragms",
-                    "detail": "Right hemidiaphragm slightly higher than left (normal). Costophrenic angles sharp bilaterally.",
+                    "finding": "Hemidiafragmas lisos e bem definidos",
+                    "detail": "Hemidiafragma direito discretamente mais elevado que o esquerdo (normal). Ângulos costofrênicos agudos bilateralmente.",
                 },
                 {
                     "structure": "Bones",
                     "status": "normal",
-                    "finding": "No fractures or lesions",
-                    "detail": "Visible clavicles, ribs, and thoracic spine show no fractures or lytic lesions. Symmetric clavicles confirm good positioning.",
+                    "finding": "Sem fraturas ou lesões",
+                    "detail": "Clavículas, costelas e coluna torácica visíveis não mostram fraturas ou lesões líticas. Clavículas simétricas confirmam bom posicionamento.",
                 },
             ],
         },
         "systematic_approach": [
             {
-                "step": "A - Airway",
-                "checks": ["Trachea position", "Carina level", "Foreign bodies", "Tracheal narrowing"],
-                "observation": "Trachea is midline with no deviation. Carina at approximately T4-T5 level (normal). No foreign body or tracheal narrowing visible.",
+                "step": "A - Via Aérea",
+                "checks": ["Posição da traqueia", "Nível da carina", "Corpos estranhos", "Estreitamento traqueal"],
+                "observation": "A traqueia está na linha média sem desvio. Carina aproximadamente no nível T4-T5 (normal). Nenhum corpo estranho ou estreitamento traqueal visível.",
             },
             {
-                "step": "B - Bones",
-                "checks": ["Clavicle symmetry", "Rib fractures", "Spine alignment", "Lytic/blastic lesions"],
-                "observation": "Clavicles are symmetric and intact, confirming good positioning. No rib fractures. Thoracic spine alignment normal. No lytic or blastic lesions.",
+                "step": "B - Ossos",
+                "checks": ["Simetria das clavículas", "Fraturas de costelas", "Alinhamento da coluna", "Lesões líticas/blásticas"],
+                "observation": "Clavículas são simétricas e intactas, confirmando bom posicionamento. Sem fraturas de costelas. Alinhamento da coluna torácica normal. Sem lesões líticas ou blásticas.",
             },
             {
-                "step": "C - Cardiac",
-                "checks": ["CTR measurement", "Heart borders", "Pericardium", "Great vessels"],
-                "observation": "CTR approximately 0.48-0.50 (borderline normal). Right heart border well-defined (right atrium). Left heart border shows slight prominence (left ventricle). No pericardial calcification.",
+                "step": "C - Cardíaco",
+                "checks": ["Medição do ICT", "Bordas do coração", "Pericárdio", "Grandes vasos"],
+                "observation": "ICT aproximadamente 0,48-0,50 (limítrofe normal). Borda cardíaca direita bem definida (átrio direito). Borda cardíaca esquerda mostra leve proeminência (ventrículo esquerdo). Sem calcificação pericárdica.",
             },
             {
-                "step": "D - Diaphragm",
-                "checks": ["Hemidiaphragm position", "Costophrenic angles", "Free air", "Gastric bubble"],
-                "observation": "Right hemidiaphragm slightly higher than left (normal). Both costophrenic angles sharp, ruling out pleural effusion. No subdiaphragmatic free air. Gastric bubble visible under left hemidiaphragm.",
+                "step": "D - Diafragma",
+                "checks": ["Posição dos hemidiafragmas", "Ângulos costofrênicos", "Ar livre", "Bolha gástrica"],
+                "observation": "Hemidiafragma direito discretamente mais elevado que o esquerdo (normal). Ambos os ângulos costofrênicos agudos, descartando derrame pleural. Sem ar subdiafragmático livre. Bolha gástrica visível sob o hemidiafragma esquerdo.",
             },
             {
-                "step": "E - Everything Else",
-                "checks": ["Lung fields", "Hila", "Pleura", "Soft tissues", "Lines/tubes"],
-                "observation": "Lung fields clear bilaterally. Hilar structures normal in size and position. No pleural thickening or effusion. Soft tissues unremarkable. No tubes, lines, or devices present.",
+                "step": "E - Todo o Resto",
+                "checks": ["Campos pulmonares", "Hilos", "Pleura", "Tecidos moles", "Linhas/tubos"],
+                "observation": "Campos pulmonares claros bilateralmente. Estruturas hilares normais em tamanho e posição. Sem espessamento pleural ou derrame. Tecidos moles sem alterações. Sem tubos, linhas ou dispositivos presentes.",
             },
         ],
         "pathology_scenarios": [
             {
                 "condition": "Pneumonia",
                 "icon": "\U0001F9EB",
-                "current_status": "Lung fields appear clear with no consolidation or infiltrates.",
-                "what_would_change": "Lobar pneumonia: dense white opacity filling an entire lobe with air bronchograms. Bronchopneumonia: patchy, poorly defined opacities scattered through the lungs, often bilateral.",
+                "current_status": "Campos pulmonares aparecem claros sem consolidação ou infiltrados.",
+                "what_would_change": "Pneumonia lobar: opacidade branca densa preenchendo um lobo inteiro com broncogramas aéreos. Broncopneumonia: opacidades irregulares mal definidas espalhadas pelos pulmões, frequentemente bilateral.",
                 "key_signs": [
-                    "Consolidation (dense white opacity)",
-                    "Air bronchograms (dark branching tubes within opacity)",
-                    "Silhouette sign (loss of sharp border with heart/diaphragm)",
-                    "Parapneumonic pleural effusion (costophrenic blunting)",
+                    "Consolidação (opacidade branca densa)",
+                    "Broncogramas aéreos (tubos ramificados escuros dentro da opacidade)",
+                    "Sinal da silhueta (perda de borda nítida com coração/diafragma)",
+                    "Derrame pleural parapneumônico (embotamento costofrênico)",
                 ],
-                "teaching_point": "Right middle and lower lobes are most commonly affected in aspiration pneumonia. Left lower lobe pneumonia hides behind the heart - always check the retrocardiac space.",
+                "teaching_point": "Lobos médio e inferior direitos são mais comumente afetados na pneumonia aspirativa. Pneumonia do lobo inferior esquerdo se esconde atrás do coração - sempre verifique o espaço retrocardíaco.",
             },
             {
-                "condition": "Heart Failure / Cardiomegaly",
+                "condition": "Insuficiência Cardíaca / Cardiomegalia",
                 "icon": "\u2764\uFE0F",
-                "current_status": "Cardiac silhouette is borderline with CTR ~0.48-0.50. No signs of pulmonary edema.",
-                "what_would_change": "CTR exceeds 0.5, upper lobe vein cephalization, Kerley B lines at periphery, peribronchial cuffing, and in severe cases bat-wing/butterfly pattern of bilateral pulmonary edema.",
+                "current_status": "Silhueta cardíaca é limítrofe com ICT ~0,48-0,50. Sem sinais de edema pulmonar.",
+                "what_would_change": "ICT excede 0,5, cefalização de veias do lobo superior, linhas B de Kerley na periferia, manguito peribrônquico, e em casos graves padrão de asa de morcego/borboleta de edema pulmonar bilateral.",
                 "key_signs": [
-                    "CTR > 0.5 (cardiomegaly)",
-                    "Cephalization of upper lobe vessels",
-                    "Kerley B lines (short horizontal lines at lung periphery)",
-                    "Bat-wing pattern (bilateral alveolar edema)",
-                    "Bilateral pleural effusions (often larger on right)",
+                    "ICT > 0,5 (cardiomegalia)",
+                    "Cefalização dos vasos do lobo superior",
+                    "Linhas B de Kerley (linhas horizontais curtas na periferia pulmonar)",
+                    "Padrão de asa de morcego (edema alveolar bilateral)",
+                    "Derrames pleurais bilaterais (frequentemente maior à direita)",
                 ],
-                "teaching_point": "Heart failure progresses from cephalization (mild) to interstitial edema with Kerley B lines (moderate) to alveolar edema with bat-wing pattern (severe). The borderline heart size here warrants follow-up.",
+                "teaching_point": "Insuficiência cardíaca progride de cefalização (leve) para edema intersticial com linhas B de Kerley (moderado) para edema alveolar com padrão de asa de morcego (grave). O tamanho cardíaco limítrofe aqui justifica acompanhamento.",
             },
             {
-                "condition": "Pleural Effusion",
+                "condition": "Derrame Pleural",
                 "icon": "\U0001F4A7",
-                "current_status": "Both costophrenic angles are sharp, ruling out significant effusion.",
-                "what_would_change": "Small effusion: subtle blunting of costophrenic angle. Moderate: meniscus sign with concave upper border. Large: opacification of lower hemithorax with mediastinal shift away.",
+                "current_status": "Ambos os ângulos costofrênicos estão agudos, descartando derrame significativo.",
+                "what_would_change": "Derrame pequeno: embotamento sutil do ângulo costofrênico. Moderado: sinal do menisco com borda superior côncava. Grande: opacificação do hemitórax inferior com desvio mediastinal para o lado oposto.",
                 "key_signs": [
-                    "Costophrenic angle blunting (earliest sign, ~200-300ml)",
-                    "Meniscus sign (concave fluid border)",
-                    "Mediastinal shift away from large effusion",
-                    "Complete hemithorax whiteout (massive effusion)",
+                    "Embotamento do ângulo costofrênico (sinal mais precoce, ~200-300ml)",
+                    "Sinal do menisco (borda côncava do fluido)",
+                    "Desvio mediastinal para longe do derrame grande",
+                    "Opacificação completa do hemitórax (derrame maciço)",
                 ],
-                "teaching_point": "Effusion pushes structures AWAY from the affected side, while atelectasis pulls structures TOWARD it. This key distinction helps differentiate the two on X-ray.",
+                "teaching_point": "Derrame empurra estruturas PARA LONGE do lado afetado, enquanto atelectasia puxa estruturas EM DIREÇÃO a ele. Esta distinção chave ajuda a diferenciar os dois no raio-X.",
             },
             {
-                "condition": "Pneumothorax",
+                "condition": "Pneumotórax",
                 "icon": "\U0001F4A8",
-                "current_status": "Lung markings extend to the chest wall periphery bilaterally - no pneumothorax.",
-                "what_would_change": "A thin visceral pleural line would separate aerated lung from the pleural air space, with no lung markings beyond this line. Tension pneumothorax causes mediastinal shift to opposite side.",
+                "current_status": "Marcas pulmonares se estendem até a periferia da parede torácica bilateralmente - sem pneumotórax.",
+                "what_would_change": "Uma linha pleural visceral fina separaria o pulmão aerado do espaço aéreo pleural, sem marcas pulmonares além desta linha. Pneumotórax hipertensivo causa desvio mediastinal para o lado oposto.",
                 "key_signs": [
-                    "Visceral pleural line (thin white line at lung edge)",
-                    "Absent lung markings beyond pleural line",
-                    "Deep sulcus sign (on supine films)",
-                    "Mediastinal shift (tension pneumothorax - EMERGENCY)",
+                    "Linha pleural visceral (linha branca fina na borda do pulmão)",
+                    "Marcas pulmonares ausentes além da linha pleural",
+                    "Sinal do sulco profundo (em filmes em decúbito dorsal)",
+                    "Desvio mediastinal (pneumotórax hipertensivo - EMERGÊNCIA)",
                 ],
-                "teaching_point": "Tension pneumothorax is a clinical emergency. Look for mediastinal shift to the opposite side, flattened hemidiaphragm, and cardiovascular collapse. Requires immediate needle decompression.",
+                "teaching_point": "Pneumotórax hipertensivo é uma emergência clínica. Procure por desvio mediastinal para o lado oposto, hemidiafragma achatado e colapso cardiovascular. Requer descompressão imediata com agulha.",
             },
         ],
         "clinical_pearls": [
             {
-                "category": "Normal Findings",
+                "category": "Achados Normais",
                 "icon": "\u2705",
                 "items": [
-                    {"title": "Sharp costophrenic angles", "detail": "Rules out significant pleural effusion (~200-300ml needed to blunt on upright film)."},
-                    {"title": "Midline trachea", "detail": "Argues against tension pneumothorax, large effusion, or mediastinal mass."},
-                    {"title": "Symmetric clavicles", "detail": "Confirms proper patient positioning with no rotation artifact."},
+                    {"title": "Ângulos costofrênicos agudos", "detail": "Descarta derrame pleural significativo (~200-300ml necessários para embotar em filme vertical)."},
+                    {"title": "Traqueia na linha média", "detail": "Argumenta contra pneumotórax hipertensivo, derrame grande ou massa mediastinal."},
+                    {"title": "Clavículas simétricas", "detail": "Confirma posicionamento adequado do paciente sem artefato de rotação."},
                 ],
             },
             {
-                "category": "Key Measurements",
+                "category": "Medidas Importantes",
                 "icon": "\U0001F4CF",
                 "items": [
-                    {"title": "CTR (Cardiothoracic Ratio)", "detail": "Max cardiac width / max thoracic width. Normal < 0.5 on PA film. This image: ~0.48-0.50."},
-                    {"title": "Mediastinal width", "detail": "Should be < 8cm on PA. Wider raises concern for aortic pathology."},
-                    {"title": "Tracheal position", "detail": "Midline or slightly right at the aortic arch level is normal."},
+                    {"title": "ICT (Índice Cardiotorácico)", "detail": "Largura cardíaca máxima / largura torácica máxima. Normal < 0,5 em filme PA. Esta imagem: ~0,48-0,50."},
+                    {"title": "Largura mediastinal", "detail": "Deve ser < 8cm em PA. Maior levanta preocupação para patologia aórtica."},
+                    {"title": "Posição traqueal", "detail": "Linha média ou levemente à direita no nível do arco aórtico é normal."},
                 ],
             },
             {
-                "category": "Common Pitfalls",
+                "category": "Armadilhas Comuns",
                 "icon": "\u26A0\uFE0F",
                 "items": [
-                    {"title": "AP vs PA films", "detail": "AP magnifies the heart by ~20%. Always confirm PA before diagnosing cardiomegaly."},
-                    {"title": "Rotation artifact", "detail": "Makes one lung appear whiter, mimicking pathology. Check clavicle symmetry to detect."},
-                    {"title": "Underpenetration", "detail": "Makes lungs look whiter. You should see vertebral bodies faintly through the heart on a properly penetrated film."},
-                    {"title": "Retrocardiac space", "detail": "Left lower lobe pneumonia and hiatal hernias hide here - always look carefully."},
+                    {"title": "Filmes AP vs PA", "detail": "AP aumenta o coração em ~20%. Sempre confirme PA antes de diagnosticar cardiomegalia."},
+                    {"title": "Artefato de rotação", "detail": "Faz um pulmão parecer mais branco, imitando patologia. Verifique simetria das clavículas para detectar."},
+                    {"title": "Subpenetração", "detail": "Faz os pulmões parecerem mais brancos. Você deve ver corpos vertebrais levemente através do coração em um filme adequadamente penetrado."},
+                    {"title": "Espaço retrocardíaco", "detail": "Pneumonia do lobo inferior esquerdo e hérnias de hiato se escondem aqui - sempre olhe cuidadosamente."},
                 ],
             },
             {
-                "category": "Next Steps",
+                "category": "Próximos Passos",
                 "icon": "\U0001F9ED",
                 "items": [
-                    {"title": "Compare with prior imaging", "detail": "Assess for interval change, especially given borderline cardiac size."},
-                    {"title": "Clinical correlation", "detail": "Correlate with symptoms and physical exam findings."},
-                    {"title": "Lateral view", "detail": "Consider for retrocardiac/retrosternal evaluation."},
+                    {"title": "Comparar com imagens prévias", "detail": "Avaliar mudança intervalar, especialmente dado o tamanho cardíaco limítrofe."},
+                    {"title": "Correlação clínica", "detail": "Correlacionar com sintomas e achados do exame físico."},
+                    {"title": "Vista lateral", "detail": "Considerar para avaliação retrocardíaca/retroesternal."},
                 ],
             },
         ],
-        "disclaimer": "This analysis is for educational purposes only and should not be considered a substitute for professional medical advice. Always consult a qualified healthcare provider for clinical decision-making.",
+        "disclaimer": "Esta análise é apenas para fins educacionais e não deve ser considerada um substituto para aconselhamento médico profissional. Sempre consulte um profissional de saúde qualificado para tomada de decisões clínicas.",
     }

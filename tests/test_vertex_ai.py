@@ -96,12 +96,12 @@ class TestMockPredict:
 class TestGetEducationalInfo:
     def test_exact_match(self):
         info = get_educational_info("heart")
-        assert "cardiac" in info["description"].lower() or "heart" in info["description"].lower()
+        assert "cardíaca" in info["description"].lower() or "cardiac" in info["description"].lower()
         assert info["clinical_relevance"]
 
     def test_case_insensitive(self):
         info = get_educational_info("Right Lung")
-        assert "three lobes" in info["description"].lower()
+        assert "lobos" in info["description"].lower() or "three lobes" in info["description"].lower()
 
     def test_partial_match(self):
         info = get_educational_info("lung")

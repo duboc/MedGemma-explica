@@ -76,7 +76,8 @@ Rules:
 - Include at least 3 clinical connections
 - Include at least 3 study tips
 - Keep text concise but informative
-- Be specific to what is described in the input about THIS image"""
+- Be specific to what is described in the input about THIS image
+- IMPORTANT: Write ALL text content in Brazilian Portuguese (pt-BR). Keep JSON keys in English."""
 
 
 def structure_deep_dive(raw_text: str, structure_names: list[str], level: str) -> dict:
@@ -127,8 +128,8 @@ def generate_deep_dive(
         structured = structure_deep_dive(raw_text, structure_names, level)
         structured["level"] = level
         structured["disclaimer"] = (
-            "This explanation is for educational purposes only and should not be "
-            "used for clinical diagnosis. Always consult a qualified healthcare provider."
+            "Esta explicação é apenas para fins educacionais e não deve ser "
+            "utilizada para diagnóstico clínico. Sempre consulte um profissional de saúde qualificado."
         )
         return structured
     except Exception as e:
@@ -140,123 +141,123 @@ def generate_deep_dive(
             "sections": [
                 {
                     "id": "content",
-                    "title": "Analysis",
+                    "title": "Análise",
                     "icon": "clipboard",
                     "content": raw_text[:2000],
                     "key_points": [],
                 }
             ],
-            "disclaimer": "This explanation is for educational purposes only.",
+            "disclaimer": "Esta explicação é apenas para fins educacionais.",
         }
 
 
 def mock_deep_dive(structure_names: list[str], level: str = "medical_student") -> dict:
     """Return a realistic mock deep dive for UI testing."""
     names = ", ".join(structure_names)
-    first = structure_names[0] if structure_names else "chest structures"
+    first = structure_names[0] if structure_names else "estruturas torácicas"
 
     return {
-        "title": f"Educational Deep Dive: {names}",
+        "title": f"Deep Dive Educacional: {names}",
         "level": level,
         "sections": [
             {
                 "id": "identification",
-                "title": "What You're Seeing",
+                "title": "O Que Você Está Vendo",
                 "icon": "eye",
-                "content": f"On this chest X-ray, MedGemma has identified and localized the {names}. These structures are fundamental landmarks in chest radiograph interpretation that every medical professional should be able to identify confidently.",
+                "content": f"Nesta radiografia de tórax, o MedGemma identificou e localizou o(a) {names}. Estas estruturas são marcos fundamentais na interpretação de radiografias de tórax que todo profissional médico deve ser capaz de identificar com confiança.",
                 "key_points": [
                     {
                         "term": first.title(),
-                        "detail": f"The {first} is clearly visible in its expected anatomical position. On a well-positioned PA film, it should appear symmetric with its contralateral counterpart (where applicable).",
+                        "detail": f"O(A) {first} é claramente visível na posição anatômica esperada. Em uma incidência PA bem posicionada, deve aparecer simétrico(a) com seu correspondente contralateral (quando aplicável).",
                     },
                     {
-                        "term": "Radiographic Density",
-                        "detail": "Different tissues absorb X-rays differently: air (black), fat (dark grey), soft tissue/fluid (light grey), bone/calcium (white), metal (bright white).",
+                        "term": "Densidade Radiográfica",
+                        "detail": "Diferentes tecidos absorvem raios-X de maneiras distintas: ar (preto), gordura (cinza escuro), tecido mole/líquido (cinza claro), osso/cálcio (branco), metal (branco brilhante).",
                     },
                     {
-                        "term": "Anatomical Landmarks",
-                        "detail": "Use surrounding structures as reference points. The carina, aortic arch, and hemidiaphragms are reliable landmarks for orientation.",
+                        "term": "Marcos Anatômicos",
+                        "detail": "Use as estruturas ao redor como pontos de referência. A carina, o arco aórtico e os hemidiafragmas são marcos confiáveis para orientação.",
                     },
                     {
-                        "term": "Image Quality",
-                        "detail": "Before interpreting, check: PA vs AP, rotation (clavicle symmetry), penetration (vertebrae visible through heart), inspiration (6+ anterior ribs).",
+                        "term": "Qualidade da Imagem",
+                        "detail": "Antes de interpretar, verifique: PA vs AP, rotação (simetria das clavículas), penetração (vértebras visíveis através do coração), inspiração (6+ costelas anteriores).",
                     },
                 ],
             },
             {
                 "id": "normal_vs_abnormal",
-                "title": "Normal vs. Abnormal",
+                "title": "Normal vs. Anormal",
                 "icon": "balance",
                 "comparisons": [
                     {
                         "structure": first.title(),
-                        "normal": f"The {first} appears in its expected position with normal size, shape, and density. Borders are well-defined.",
+                        "normal": f"O(A) {first} aparece na posição esperada com tamanho, forma e densidade normais. As bordas são bem definidas.",
                         "abnormal_signs": [
-                            "Increased or decreased density",
-                            "Shift from normal position",
-                            "Loss of normal borders (silhouette sign)",
-                            "Unexpected size change",
+                            "Aumento ou diminuição da densidade",
+                            "Desvio da posição normal",
+                            "Perda das bordas normais (sinal da silhueta)",
+                            "Mudança inesperada de tamanho",
                         ],
-                        "this_image": f"The {first} appears within normal limits on this image with no signs of acute pathology.",
+                        "this_image": f"O(A) {first} aparece dentro dos limites normais nesta imagem, sem sinais de patologia aguda.",
                     },
                     {
-                        "structure": "Overall Assessment",
-                        "normal": "Symmetric lung fields, normal cardiac silhouette (CTR < 0.5), sharp costophrenic angles, midline trachea.",
+                        "structure": "Avaliação Geral",
+                        "normal": "Campos pulmonares simétricos, silhueta cardíaca normal (ICT < 0,5), ângulos costofrênicos agudos, traqueia na linha média.",
                         "abnormal_signs": [
-                            "Asymmetric lung opacity",
-                            "Widened mediastinum",
-                            "Blunted costophrenic angles",
-                            "Tracheal deviation",
+                            "Opacidade pulmonar assimétrica",
+                            "Mediastino alargado",
+                            "Velamento dos ângulos costofrênicos",
+                            "Desvio traqueal",
                         ],
-                        "this_image": "The overall chest appearance is unremarkable with no acute findings.",
+                        "this_image": "A aparência geral do tórax é normal, sem achados agudos.",
                     },
                 ],
             },
             {
                 "id": "clinical_connections",
-                "title": "Clinical Connections",
+                "title": "Conexões Clínicas",
                 "icon": "stethoscope",
                 "connections": [
                     {
                         "condition": "Pneumonia",
-                        "relevance": f"Infection can cause consolidation adjacent to or within the {first}, appearing as increased opacity with possible air bronchograms.",
-                        "what_to_look_for": "Focal consolidation, air bronchograms, silhouette sign, parapneumonic effusion",
+                        "relevance": f"A infecção pode causar consolidação adjacente ou dentro do(a) {first}, aparecendo como opacidade aumentada com possíveis broncogramas aéreos.",
+                        "what_to_look_for": "Consolidação focal, broncogramas aéreos, sinal da silhueta, derrame parapneumônico",
                     },
                     {
-                        "condition": "Heart Failure",
-                        "relevance": "Fluid overload manifests as cardiomegaly, cephalization of vessels, Kerley B lines, and bilateral effusions.",
-                        "what_to_look_for": "CTR > 0.5, upper lobe vessel distension, perihilar haziness, bilateral pleural effusions",
+                        "condition": "Insuficiência Cardíaca",
+                        "relevance": "A sobrecarga hídrica manifesta-se como cardiomegalia, cefalização dos vasos, linhas B de Kerley e derrames bilaterais.",
+                        "what_to_look_for": "ICT > 0,5, distensão dos vasos do lobo superior, nebulosidade peri-hilar, derrames pleurais bilaterais",
                     },
                     {
-                        "condition": "Pneumothorax",
-                        "relevance": "Air in the pleural space causes lung collapse. The visceral pleural line becomes visible with absent lung markings peripherally.",
-                        "what_to_look_for": "Visceral pleural line, absent peripheral lung markings, deep sulcus sign (supine), mediastinal shift (tension)",
+                        "condition": "Pneumotórax",
+                        "relevance": "Ar no espaço pleural causa colapso pulmonar. A linha pleural visceral torna-se visível com ausência de marcas pulmonares na periferia.",
+                        "what_to_look_for": "Linha pleural visceral, ausência de marcas pulmonares periféricas, sinal do sulco profundo (decúbito), desvio mediastinal (tensão)",
                     },
                 ],
             },
             {
                 "id": "study_tips",
-                "title": "Study Tips",
+                "title": "Dicas de Estudo",
                 "icon": "lightbulb",
                 "tips": [
                     {
-                        "tip": "Use the ABCDE systematic approach",
-                        "why": "Airway, Bones, Cardiac, Diaphragm, Everything else - ensures you never miss a finding by being methodical.",
+                        "tip": "Use a abordagem sistemática ABCDE",
+                        "why": "Vias Aéreas, Bones (Ossos), Cardíaco, Diafragma, Everything else (Todo o resto) — garante que você nunca perca um achado sendo metódico.",
                     },
                     {
-                        "tip": "Always compare with the contralateral side",
-                        "why": "Asymmetry is often the first clue to pathology. Train your eye to spot subtle differences between left and right.",
+                        "tip": "Sempre compare com o lado contralateral",
+                        "why": "A assimetria é frequentemente a primeira pista de patologia. Treine seu olho para detectar diferenças sutis entre esquerda e direita.",
                     },
                     {
-                        "tip": "Check the edges and corners",
-                        "why": "Apices, costophrenic angles, and retrocardiac space are common 'blind spots' where findings are missed.",
+                        "tip": "Verifique as bordas e cantos",
+                        "why": "Ápices, ângulos costofrênicos e espaço retrocardíaco são 'pontos cegos' comuns onde achados são perdidos.",
                     },
                     {
-                        "tip": "Know your lines and tubes",
-                        "why": "In clinical practice, confirming correct placement of ET tubes, central lines, and chest drains is a critical skill.",
+                        "tip": "Conheça seus tubos e cateteres",
+                        "why": "Na prática clínica, confirmar o posicionamento correto de tubos endotraqueais, cateteres centrais e drenos torácicos é uma habilidade crítica.",
                     },
                 ],
             },
         ],
-        "disclaimer": "This explanation is for educational purposes only and should not be used for clinical diagnosis. Always consult a qualified healthcare provider.",
+        "disclaimer": "Esta explicação é apenas para fins educacionais e não deve ser utilizada para diagnóstico clínico. Sempre consulte um profissional de saúde qualificado.",
     }

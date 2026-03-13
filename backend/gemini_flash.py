@@ -81,7 +81,8 @@ SYSTEM_INSTRUCTION = """You are an expert medical educator specializing in radio
 You help medical students and healthcare learners understand chest X-ray findings.
 Your explanations are accurate, educational, and engaging.
 Use clear language appropriate for the specified level.
-Always include a disclaimer that this is for educational purposes only, not clinical diagnosis."""
+Always include a disclaimer that this is for educational purposes only, not clinical diagnosis.
+IMPORTANT: Always write your responses in Brazilian Portuguese (pt-BR)."""
 
 
 def explain_analysis(
@@ -120,7 +121,9 @@ Please provide a comprehensive educational explanation for {audience}. Include:
 3. **Clinical Connections**: How do these structures relate to common clinical conditions?
 4. **Study Tips**: Key points to remember for identifying these structures on X-rays.
 
-Format your response in clear sections with markdown."""
+Format your response in clear sections with markdown.
+
+IMPORTANT: Write your entire response in Brazilian Portuguese (pt-BR)."""
 
     contents = [{"role": "user", "parts": [{"text": prompt}]}]
     return _call_gemini(contents, system_instruction=SYSTEM_INSTRUCTION)
@@ -157,40 +160,40 @@ Keep answers focused and educational. Use markdown formatting."""
 def mock_explain(structure_names: list[str], level: str = "medical_student") -> str:
     """Return a mock educational explanation for testing."""
     names = ", ".join(structure_names)
-    return f"""## Educational Overview: {names}
+    return f"""## Visão Geral Educacional: {names}
 
-### What You're Seeing
-On this chest X-ray, MedGemma has identified and localized the **{names}**. These structures are fundamental landmarks in chest radiograph interpretation.
+### O Que Você Está Vendo
+Nesta radiografia de tórax, o MedGemma identificou e localizou o(a) **{names}**. Estas estruturas são marcos fundamentais na interpretação de radiografias de tórax.
 
-### Normal vs. Abnormal
-In a normal chest X-ray, these structures should appear symmetric (where applicable) and within expected size ranges. Key things to look for:
-- **Size**: Is the structure within normal proportions?
-- **Shape**: Are the contours smooth and regular?
-- **Position**: Is everything in the expected anatomical location?
-- **Density**: Is the radiodensity what you'd expect?
+### Normal vs. Anormal
+Em uma radiografia de tórax normal, essas estruturas devem aparecer simétricas (quando aplicável) e dentro dos tamanhos esperados. Pontos-chave a observar:
+- **Tamanho**: A estrutura está dentro das proporções normais?
+- **Forma**: Os contornos são suaves e regulares?
+- **Posição**: Tudo está na localização anatômica esperada?
+- **Densidade**: A radiodensidade é a esperada?
 
-### Clinical Connections
-Understanding these structures is essential for identifying conditions such as pneumonia, pleural effusions, cardiomegaly, and pneumothorax.
+### Conexões Clínicas
+Compreender essas estruturas é essencial para identificar condições como pneumonia, derrame pleural, cardiomegalia e pneumotórax.
 
-### Study Tips
-- Always use a systematic approach when reading chest X-rays
-- Compare left and right sides for symmetry
-- Follow the ABCDEs: Airway, Bones, Cardiac, Diaphragm, Everything else
+### Dicas de Estudo
+- Sempre use uma abordagem sistemática ao ler radiografias de tórax
+- Compare os lados esquerdo e direito para verificar simetria
+- Siga o ABCDE: Vias Aéreas, Ossos (Bones), Cardíaco, Diafragma, Everything else (Todo o resto)
 
-> *This explanation is for educational purposes only, not for clinical diagnosis.*"""
+> *Esta explicação é apenas para fins educacionais, não para diagnóstico clínico.*"""
 
 
 def mock_chat(message: str, structure_names: list[str]) -> str:
     """Return a mock chat response for testing."""
     names = ", ".join(structure_names)
-    return f"""Great question! In the context of the **{names}** visible on this chest X-ray:
+    return f"""Ótima pergunta! No contexto do(a) **{names}** visível nesta radiografia de tórax:
 
-{message.strip()} is an important topic in radiology education. Here are the key points:
+{message.strip()} é um tópico importante na educação em radiologia. Aqui estão os pontos-chave:
 
-1. **Anatomical Context**: The structures identified by MedGemma serve as important landmarks for systematic chest X-ray interpretation.
+1. **Contexto Anatômico**: As estruturas identificadas pelo MedGemma servem como marcos importantes para a interpretação sistemática de radiografias de tórax.
 
-2. **Clinical Significance**: Understanding the normal appearance helps recognize pathological changes early.
+2. **Significância Clínica**: Compreender a aparência normal ajuda a reconhecer alterações patológicas precocemente.
 
-3. **Practice Tip**: Try comparing multiple X-rays to build pattern recognition skills.
+3. **Dica de Prática**: Tente comparar múltiplas radiografias para desenvolver habilidades de reconhecimento de padrões.
 
-> *This is for educational purposes only, not for clinical diagnosis.*"""
+> *Isto é apenas para fins educacionais, não para diagnóstico clínico.*"""

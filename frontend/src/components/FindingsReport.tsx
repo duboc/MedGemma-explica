@@ -50,8 +50,8 @@ interface Report {
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   normal: { label: "Normal", className: "fr-status--normal" },
-  abnormal: { label: "Abnormal", className: "fr-status--abnormal" },
-  borderline: { label: "Borderline", className: "fr-status--borderline" },
+  abnormal: { label: "Anormal", className: "fr-status--abnormal" },
+  borderline: { label: "Limítrofe", className: "fr-status--borderline" },
 };
 
 export default function FindingsReport({ result, mockMode, onSave }: Props) {
@@ -74,7 +74,7 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
       setReport(data);
       onSave?.(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate report");
+      setError(err instanceof Error ? err.message : "Falha ao gerar relatório");
     } finally {
       setLoading(false);
     }
@@ -97,9 +97,9 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
     <div className="fr-panel">
       <div className="fr-header">
         <div>
-          <h3>Comprehensive Findings Report</h3>
+          <h3>Relatório Completo de Achados</h3>
           <p className="fr-subtitle">
-            MedGemma analyzes the X-ray, Gemini structures the findings
+            MedGemma analisa o Raio-X, Gemini estrutura os achados
           </p>
         </div>
         <span className="rv-badge">MedGemma + Gemini</span>
@@ -110,19 +110,19 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
           <div className="fr-intro-grid">
             <div className="fr-intro-item">
               <span className="fr-intro-icon">{"\u{1FA7A}"}</span>
-              <span>Overall Assessment</span>
+              <span>Avaliação Geral</span>
             </div>
             <div className="fr-intro-item">
               <span className="fr-intro-icon">{"\u{1F4CB}"}</span>
-              <span>ABCDE Systematic Reading</span>
+              <span>Leitura Sistemática ABCDE</span>
             </div>
             <div className="fr-intro-item">
               <span className="fr-intro-icon">{"\u{1F9EB}"}</span>
-              <span>Pathology Scenarios</span>
+              <span>Cenários Patológicos</span>
             </div>
             <div className="fr-intro-item">
               <span className="fr-intro-icon">{"\u{1F4A1}"}</span>
-              <span>Clinical Pearls</span>
+              <span>Pérolas Clínicas</span>
             </div>
           </div>
           <button
@@ -130,7 +130,7 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
             onClick={handleGenerate}
             disabled={loading}
           >
-            Generate Full Report
+            Gerar Relatório Completo
           </button>
         </div>
       )}
@@ -138,8 +138,8 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
       {loading && !report && (
         <div className="fr-loading">
           <span className="spinner" />
-          <p>Generating comprehensive report...</p>
-          <p className="fr-loading-sub">MedGemma is analyzing the image, then Gemini structures the findings. This may take a minute.</p>
+          <p>Gerando relatório completo...</p>
+          <p className="fr-loading-sub">MedGemma está analisando a imagem, depois o Gemini estrutura os achados. Isso pode levar um minuto.</p>
         </div>
       )}
 
@@ -148,14 +148,14 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
       {report && (
         <div className="fr-report">
           <div className="fr-toolbar">
-            <button className="fr-toolbar-btn" onClick={expandAll}>Expand All</button>
-            <button className="fr-toolbar-btn" onClick={collapseAll}>Collapse All</button>
+            <button className="fr-toolbar-btn" onClick={expandAll}>Expandir Tudo</button>
+            <button className="fr-toolbar-btn" onClick={collapseAll}>Recolher Tudo</button>
             <button
               className="fr-toolbar-btn fr-toolbar-btn--regen"
               onClick={handleGenerate}
               disabled={loading}
             >
-              {loading ? "Regenerating..." : "Regenerate"}
+              {loading ? "Regenerando..." : "Regenerar"}
             </button>
           </div>
 
@@ -163,7 +163,7 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
           <SectionWrapper
             sectionKey="overall"
             icon={"\u{1FA7A}"}
-            title="Overall Assessment"
+            title="Avaliação Geral"
             expanded={expandedSections.has("overall")}
             onToggle={toggleSection}
           >
@@ -189,7 +189,7 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
           <SectionWrapper
             sectionKey="systematic"
             icon={"\u{1F4CB}"}
-            title="Systematic Reading (ABCDE)"
+            title="Leitura Sistemática (ABCDE)"
             expanded={expandedSections.has("systematic")}
             onToggle={toggleSection}
           >
@@ -212,7 +212,7 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
           <SectionWrapper
             sectionKey="pathology"
             icon={"\u{1F9EB}"}
-            title="Pathology Scenarios"
+            title="Cenários Patológicos"
             expanded={expandedSections.has("pathology")}
             onToggle={toggleSection}
           >
@@ -224,15 +224,15 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
                     <span className="fr-pathology-condition">{p.condition}</span>
                   </div>
                   <div className="fr-pathology-section">
-                    <div className="fr-pathology-label">Current Status</div>
+                    <div className="fr-pathology-label">Status Atual</div>
                     <p>{p.current_status}</p>
                   </div>
                   <div className="fr-pathology-section">
-                    <div className="fr-pathology-label">What Would Change</div>
+                    <div className="fr-pathology-label">O Que Mudaria</div>
                     <p>{p.what_would_change}</p>
                   </div>
                   <div className="fr-pathology-section">
-                    <div className="fr-pathology-label">Key Signs</div>
+                    <div className="fr-pathology-label">Sinais-Chave</div>
                     <ul className="fr-key-signs">
                       {p.key_signs.map((s, j) => (
                         <li key={j}>{s}</li>
@@ -240,7 +240,7 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
                     </ul>
                   </div>
                   <div className="fr-teaching-point">
-                    <strong>Teaching Point:</strong> {p.teaching_point}
+                    <strong>Ponto Didático:</strong> {p.teaching_point}
                   </div>
                 </div>
               ))}
@@ -251,7 +251,7 @@ export default function FindingsReport({ result, mockMode, onSave }: Props) {
           <SectionWrapper
             sectionKey="pearls"
             icon={"\u{1F4A1}"}
-            title="Clinical Pearls & Pitfalls"
+            title="Pérolas Clínicas e Armadilhas"
             expanded={expandedSections.has("pearls")}
             onToggle={toggleSection}
           >

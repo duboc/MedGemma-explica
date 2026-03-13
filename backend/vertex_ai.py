@@ -6,64 +6,64 @@ from config import settings
 
 ANATOMY_INFO = {
     "right lung": {
-        "description": "The right lung has three lobes (upper, middle, lower) and is slightly larger than the left lung.",
-        "clinical_relevance": "Common site for pneumonia, lung nodules, and pleural effusions. The right main bronchus is wider and more vertical, making it the more common site for aspirated foreign bodies.",
+        "description": "O pulmão direito possui três lobos (superior, médio e inferior) e é ligeiramente maior que o pulmão esquerdo.",
+        "clinical_relevance": "Local comum para pneumonia, nódulos pulmonares e derrames pleurais. O brônquio principal direito é mais largo e vertical, sendo o local mais comum para aspiração de corpos estranhos.",
     },
     "left lung": {
-        "description": "The left lung has two lobes (upper and lower) and is slightly smaller to accommodate the heart.",
-        "clinical_relevance": "The lingula of the left upper lobe is the anatomical equivalent of the right middle lobe. The cardiac notch creates a characteristic indentation.",
+        "description": "O pulmão esquerdo possui dois lobos (superior e inferior) e é ligeiramente menor para acomodar o coração.",
+        "clinical_relevance": "A língula do lobo superior esquerdo é o equivalente anatômico do lobo médio direito. A incisura cardíaca cria uma indentação característica.",
     },
     "heart": {
-        "description": "The cardiac silhouette on a PA chest X-ray normally occupies less than 50% of the thoracic width (cardiothoracic ratio).",
-        "clinical_relevance": "An enlarged cardiac silhouette (CTR > 0.5) may indicate cardiomegaly, pericardial effusion, or other cardiac conditions.",
+        "description": "A silhueta cardíaca em uma radiografia PA de tórax normalmente ocupa menos de 50% da largura torácica (índice cardiotorácico).",
+        "clinical_relevance": "Uma silhueta cardíaca aumentada (ICT > 0,5) pode indicar cardiomegalia, derrame pericárdico ou outras condições cardíacas.",
     },
     "right clavicle": {
-        "description": "The clavicle (collarbone) connects the sternum to the scapula. On X-ray, it appears as a curved, dense bone at the top of the chest.",
-        "clinical_relevance": "Fractures are common, especially in the middle third. The clavicle is an important landmark for identifying the lung apices.",
+        "description": "A clavícula conecta o esterno à escápula. Na radiografia, aparece como um osso curvo e denso no topo do tórax.",
+        "clinical_relevance": "Fraturas são comuns, especialmente no terço médio. A clavícula é um marco importante para identificar os ápices pulmonares.",
     },
     "left clavicle": {
-        "description": "The left clavicle mirrors the right, connecting the sternum to the left scapula.",
-        "clinical_relevance": "Symmetry between clavicles helps assess patient rotation on the X-ray. Asymmetry may indicate improper positioning or pathology.",
+        "description": "A clavícula esquerda espelha a direita, conectando o esterno à escápula esquerda.",
+        "clinical_relevance": "A simetria entre as clavículas ajuda a avaliar a rotação do paciente na radiografia. Assimetria pode indicar posicionamento inadequado ou patologia.",
     },
     "trachea": {
-        "description": "The trachea appears as a dark, air-filled tube in the midline of the upper chest, bifurcating at the carina into the left and right main bronchi.",
-        "clinical_relevance": "Tracheal deviation may indicate tension pneumothorax, large pleural effusion, or mediastinal mass. The carina is typically at the level of T4-T5.",
+        "description": "A traqueia aparece como um tubo escuro preenchido por ar na linha média do tórax superior, bifurcando-se na carina nos brônquios principais esquerdo e direito.",
+        "clinical_relevance": "O desvio traqueal pode indicar pneumotórax hipertensivo, derrame pleural volumoso ou massa mediastinal. A carina está tipicamente no nível de T4-T5.",
     },
     "aortic arch": {
-        "description": "The aortic arch (aortic knob) appears as a rounded opacity on the left side of the mediastinum, just above the left hilum.",
-        "clinical_relevance": "An unfolded or widened aorta may suggest aneurysm, atherosclerosis, or traumatic injury. The aortic knob is an important landmark.",
+        "description": "O arco aórtico (botão aórtico) aparece como uma opacidade arredondada no lado esquerdo do mediastino, logo acima do hilo esquerdo.",
+        "clinical_relevance": "Uma aorta desdobrada ou alargada pode sugerir aneurisma, aterosclerose ou lesão traumática. O botão aórtico é um marco importante.",
     },
     "right costophrenic angle": {
-        "description": "The costophrenic angle is where the diaphragm meets the chest wall. It normally appears as a sharp, acute angle.",
-        "clinical_relevance": "Blunting of the costophrenic angle is one of the earliest signs of pleural effusion, detectable when approximately 200-300mL of fluid is present.",
+        "description": "O ângulo costofrênico é onde o diafragma encontra a parede torácica. Normalmente aparece como um ângulo agudo e nítido.",
+        "clinical_relevance": "O velamento do ângulo costofrênico é um dos sinais mais precoces de derrame pleural, detectável quando aproximadamente 200-300mL de líquido estão presentes.",
     },
     "left costophrenic angle": {
-        "description": "The left costophrenic angle mirrors the right side at the junction of the left hemidiaphragm and lateral chest wall.",
-        "clinical_relevance": "Left-sided pleural effusion may be associated with heart failure, parapneumonic effusion, or other conditions.",
+        "description": "O ângulo costofrênico esquerdo espelha o lado direito na junção do hemidiafragma esquerdo com a parede torácica lateral.",
+        "clinical_relevance": "Derrame pleural à esquerda pode estar associado a insuficiência cardíaca, derrame parapneumônico ou outras condições.",
     },
     "upper mediastinum": {
-        "description": "The upper mediastinum contains the great vessels, trachea, esophagus, and thoracic duct, visible above the level of the pericardium.",
-        "clinical_relevance": "Widening of the upper mediastinum may suggest aortic dissection, lymphadenopathy, or mass lesions.",
+        "description": "O mediastino superior contém os grandes vasos, traqueia, esôfago e ducto torácico, visíveis acima do nível do pericárdio.",
+        "clinical_relevance": "O alargamento do mediastino superior pode sugerir dissecção aórtica, linfonodomegalia ou lesões expansivas.",
     },
     "right hilar structures": {
-        "description": "The right hilum contains the right pulmonary artery, right main bronchus, and associated lymph nodes.",
-        "clinical_relevance": "Hilar enlargement may indicate lymphadenopathy (sarcoidosis, lymphoma, infection) or pulmonary arterial hypertension.",
+        "description": "O hilo direito contém a artéria pulmonar direita, o brônquio principal direito e linfonodos associados.",
+        "clinical_relevance": "O aumento hilar pode indicar linfonodomegalia (sarcoidose, linfoma, infecção) ou hipertensão arterial pulmonar.",
     },
     "left hilar structures": {
-        "description": "The left hilum is normally slightly higher than the right and contains the left pulmonary artery and left main bronchus.",
-        "clinical_relevance": "The left hilum is normally 1-2 cm higher than the right. A change in this relationship may indicate volume loss or mass effect.",
+        "description": "O hilo esquerdo é normalmente ligeiramente mais alto que o direito e contém a artéria pulmonar esquerda e o brônquio principal esquerdo.",
+        "clinical_relevance": "O hilo esquerdo é normalmente 1-2 cm mais alto que o direito. Uma mudança nessa relação pode indicar perda de volume ou efeito de massa.",
     },
     "spine": {
-        "description": "The thoracic spine is visible through the cardiac silhouette on a well-penetrated PA film, with vertebral bodies becoming more lucent inferiorly.",
-        "clinical_relevance": "Loss of the normal progressive lucency inferiorly may suggest posterior mediastinal pathology or retrocardiac consolidation.",
+        "description": "A coluna torácica é visível através da silhueta cardíaca em uma incidência PA bem penetrada, com os corpos vertebrais tornando-se mais transparentes inferiormente.",
+        "clinical_relevance": "A perda da transparência progressiva normal inferiormente pode sugerir patologia do mediastino posterior ou consolidação retrocardíaca.",
     },
     "right hemidiaphragm": {
-        "description": "The right hemidiaphragm is normally slightly higher than the left (1-2 cm) due to the underlying liver.",
-        "clinical_relevance": "Flattening of the diaphragm suggests hyperinflation (COPD/emphysema). Elevation may indicate phrenic nerve palsy or subpulmonic effusion.",
+        "description": "O hemidiafragma direito é normalmente ligeiramente mais alto que o esquerdo (1-2 cm) devido ao fígado subjacente.",
+        "clinical_relevance": "O achatamento do diafragma sugere hiperinsuflação (DPOC/enfisema). A elevação pode indicar paralisia do nervo frênico ou derrame subpulmonar.",
     },
     "left hemidiaphragm": {
-        "description": "The left hemidiaphragm is normally slightly lower than the right. The gastric air bubble is typically seen beneath it.",
-        "clinical_relevance": "The gastric bubble sign below the left hemidiaphragm is a useful landmark. Loss of this sign may indicate left lower lobe pathology.",
+        "description": "O hemidiafragma esquerdo é normalmente ligeiramente mais baixo que o direito. A bolha gástrica é tipicamente vista abaixo dele.",
+        "clinical_relevance": "O sinal da bolha gástrica abaixo do hemidiafragma esquerdo é um marco útil. A perda desse sinal pode indicar patologia do lobo inferior esquerdo.",
     },
 }
 
@@ -225,7 +225,9 @@ Please provide a comprehensive educational explanation for {audience}. Include:
 3. **Clinical Connections**: How do these structures relate to common clinical conditions?
 4. **Study Tips**: Key points to remember for identifying these structures on X-rays.
 
-Format your response in clear sections with markdown. Include a disclaimer that this is for educational purposes only."""
+Format your response in clear sections with markdown. Include a disclaimer that this is for educational purposes only.
+
+IMPORTANT: Write your entire response in Brazilian Portuguese (pt-BR)."""
 
     user_content: list[dict] = [{"type": "text", "text": prompt}]
     if image_bytes:
@@ -270,7 +272,8 @@ def chat_with_medgemma(
         f"{chr(10).join(context)}\n\n"
         "Answer questions about these structures, the X-ray findings, related pathology, or radiology concepts. "
         "Keep answers focused and educational. Use markdown formatting. "
-        "Always include a disclaimer that this is for educational purposes only."
+        "Always include a disclaimer that this is for educational purposes only.\n\n"
+        "IMPORTANT: Always respond in Brazilian Portuguese (pt-BR)."
     )
 
     messages: list[dict] = [
@@ -320,6 +323,8 @@ Generate exactly 6 educational questions a medical student should ask about this
 1. Be specific to what is visible on THIS image
 2. Cover different learning angles: anatomy identification, normal vs abnormal, pathology correlation, clinical reasoning, and systematic approach
 3. Be phrased as natural questions a student would ask
+
+IMPORTANT: Write all questions in Brazilian Portuguese (pt-BR).
 
 Output ONLY the 6 questions, one per line, numbered 1-6. No other text."""
 
@@ -376,11 +381,11 @@ Output ONLY the 6 questions, one per line, numbered 1-6. No other text."""
     if len(questions) < 3:
         names = ", ".join(structure_names)
         fallbacks = [
-            f"What does the {structure_names[0]} look like on this X-ray and is it within normal limits?",
-            f"If this patient had pneumonia, how would the appearance of the {structure_names[0]} change?",
-            "What is the cardiothoracic ratio on this image and what does it indicate?",
-            "Can you walk me through a systematic ABCDE reading of this chest X-ray?",
-            f"What are the most common pathologies that affect the {names}?",
+            f"Como o(a) {structure_names[0]} aparece neste Raio-X e está dentro dos limites normais?",
+            f"Se este paciente tivesse pneumonia, como a aparência do(a) {structure_names[0]} mudaria?",
+            "Qual é a relação cardiotorácica nesta imagem e o que ela indica?",
+            "Pode me guiar por uma leitura sistemática ABCDE desta radiografia de tórax?",
+            f"Quais são as patologias mais comuns que afetam o(a) {names}?",
         ]
         questions = questions + fallbacks[len(questions):]
 
@@ -425,6 +430,6 @@ def get_educational_info(object_name: str) -> dict:
         if normalized in key or key in normalized:
             return info
     return {
-        "description": f"The {object_name} is an anatomical structure visible on chest X-rays.",
-        "clinical_relevance": "Consult radiology references for detailed clinical information.",
+        "description": f"O(A) {object_name} é uma estrutura anatômica visível em radiografias de tórax.",
+        "clinical_relevance": "Consulte referências de radiologia para informações clínicas detalhadas.",
     }
