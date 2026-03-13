@@ -1,16 +1,23 @@
 interface Props {
   mockMode: boolean;
   onToggleMock: () => void;
+  title?: string;
+  subtitle?: string;
+  badge?: string;
 }
 
-export default function Header({ mockMode, onToggleMock }: Props) {
+export default function Header({
+  mockMode,
+  onToggleMock,
+  title = "MedGemma Explica",
+  subtitle = "Localizacao Anatomica Educacional em Radiografias de Torax",
+  badge = "MedGemma 1.5 + Gemini Flash no Vertex AI",
+}: Props) {
   return (
     <header className="header">
       <div className="header-content">
-        <h1 className="header-title">MedGemma Explica</h1>
-        <p className="header-subtitle">
-          Localização Anatômica Educacional em Radiografias de Tórax
-        </p>
+        <h1 className="header-title">{title}</h1>
+        <p className="header-subtitle">{subtitle}</p>
       </div>
       <div className="header-right">
         <label className="mock-toggle">
@@ -25,9 +32,7 @@ export default function Header({ mockMode, onToggleMock }: Props) {
             <span className="toggle-knob" />
           </button>
         </label>
-        <div className="header-badge">
-          MedGemma 1.5 + Gemini Flash no Vertex AI
-        </div>
+        <div className="header-badge">{badge}</div>
       </div>
     </header>
   );

@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
 from config import settings
+from ct_dicom import CT_SAMPLES, mock_ct_analyze
 from image_processing import pad_image_to_square
 from vertex_ai import ANATOMY_INFO, get_educational_info, mock_predict
 
@@ -524,3 +525,212 @@ async def findings_report_endpoint(request: Request):
             raise HTTPException(400, "Could not load image for analysis")
         from findings_report import generate_findings_report
         return generate_findings_report(image_bytes, structure_names)
+
+
+# ===== CT Scan Endpoints =====
+
+# In-memory store for mock CT analyses
+_mock_ct_analyses: list[dict] = []
+
+CT_ALLOWED_PATCH_FIELDS = {"deep_dive", "chat_messages"}
+
+
+@app.get("/api/ct/samples")
+def ct_list_samples():
+    """List available CT scan sample series."""
+    return [
+        {
+            "id": s["id"],
+            "name": s["name"],
+            "description": s["description"],
+            "body_part": s["body_part"],
+            "num_slices": s["num_slices"],
+        }
+        for s in CT_SAMPLES
+    ]
+
+
+@app.post("/api/ct/analyze")
+async def ct_analyze(request: Request):
+    """Analyze a CT series. JSON body: {series_id, query, mock}."""
+    body = await request.json()
+    series_id = body.get("series_id")
+    query = body.get("query", "")
+    mock = body.get("mock", False)
+
+    if not series_id:
+        raise HTTPException(400, "series_id is required")
+    if not query.strip():
+        raise HTTPException(400, "query is required")
+
+    # Validate series_id
+    if not any(s["id"] == series_id for s in CT_SAMPLES):
+        raise HTTPException(400, f"Unknown series_id: {series_id}")
+
+    if mock:
+        result = mock_ct_analyze(series_id, query)
+        _mock_ct_analyses.insert(0, result)
+        if len(_mock_ct_analyses) > 50:
+            _mock_ct_analyses[:] = _mock_ct_analyses[:50]
+        return result
+    else:
+        try:
+            from ct_dicom import analyze_ct
+            result = analyze_ct(series_id, query)
+            _mock_ct_analyses.insert(0, result)
+            return result
+        except ImportError:
+            raise HTTPException(
+                503,
+                "Live mode unavailable: Google Cloud dependencies not installed. Use Mock Mode instead.",
+            )
+        except Exception as e:
+            logger.error(f"CT analysis failed: {e}\n{traceback.format_exc()}")
+            raise HTTPException(500, f"CT analysis failed: {str(e)}")
+
+
+@app.get("/api/ct/analyses")
+def ct_list_analyses(limit: int = 20):
+    """List recent CT analyses (in-memory only)."""
+    return _mock_ct_analyses[:limit]
+
+
+@app.delete("/api/ct/analyses")
+def ct_clear_analyses():
+    """Clear all CT analyses."""
+    global _mock_ct_analyses
+    _mock_ct_analyses = []
+    return {"status": "cleared"}
+
+
+@app.get("/api/ct/analyses/{doc_id}")
+def ct_get_analysis(doc_id: str):
+    """Get a specific CT analysis by ID."""
+    for a in _mock_ct_analyses:
+        if a["id"] == doc_id:
+            return a
+    raise HTTPException(404, "CT analysis not found")
+
+
+@app.delete("/api/ct/analyses/{doc_id}")
+def ct_delete_analysis(doc_id: str):
+    """Delete a specific CT analysis."""
+    global _mock_ct_analyses
+    _mock_ct_analyses = [a for a in _mock_ct_analyses if a["id"] != doc_id]
+    return {"status": "deleted"}
+
+
+@app.patch("/api/ct/analyses/{doc_id}")
+async def ct_update_analysis(doc_id: str, request: Request):
+    """Update fields on a CT analysis (deep_dive, chat_messages)."""
+    body = await request.json()
+    updates = {k: v for k, v in body.items() if k in CT_ALLOWED_PATCH_FIELDS}
+    if not updates:
+        raise HTTPException(400, f"No valid fields. Allowed: {CT_ALLOWED_PATCH_FIELDS}")
+
+    for a in _mock_ct_analyses:
+        if a["id"] == doc_id:
+            updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+            a.update(updates)
+            return {"status": "updated", "fields": list(updates.keys())}
+    raise HTTPException(404, "CT analysis not found")
+
+
+@app.post("/api/ct/explain")
+async def ct_explain_endpoint(request: Request):
+    """Generate an educational deep dive for a CT analysis (text-based, no DICOM re-send)."""
+    body = await request.json()
+    series_name = body.get("series_name", "TC")
+    body_part = body.get("body_part", "")
+    response_text = body.get("response_text", "")
+    level = body.get("level", "medical_student")
+    mock = body.get("mock", False)
+
+    if mock:
+        from deep_dive import mock_deep_dive
+        return {"explanation": mock_deep_dive([f"TC de {body_part}"], level)}
+    else:
+        from gemini_flash import _call_gemini
+        from deep_dive import structure_deep_dive
+        try:
+            structured = structure_deep_dive(response_text, [f"TC de {body_part}"], level)
+            structured["level"] = level
+            structured["disclaimer"] = (
+                "Esta explicacao e apenas para fins educacionais e nao deve ser "
+                "utilizada para diagnostico clinico. Sempre consulte um profissional de saude qualificado."
+            )
+            return {"explanation": structured}
+        except Exception as e:
+            logger.error(f"CT explain failed: {e}")
+            return {
+                "explanation": {
+                    "title": f"Deep Dive: TC de {body_part}",
+                    "level": level,
+                    "sections": [
+                        {
+                            "id": "content",
+                            "title": "Analise",
+                            "icon": "clipboard",
+                            "content": response_text[:2000],
+                            "key_points": [],
+                        }
+                    ],
+                    "disclaimer": "Esta explicacao e apenas para fins educacionais.",
+                }
+            }
+
+
+@app.post("/api/ct/chat")
+async def ct_chat_endpoint(request: Request):
+    """Q&A chat about a CT analysis (text context, no DICOM re-send)."""
+    body = await request.json()
+    messages = body.get("messages", [])
+    series_name = body.get("series_name", "TC")
+    body_part = body.get("body_part", "")
+    response_text = body.get("response_text", "")
+    mock = body.get("mock", False)
+
+    if not messages:
+        raise HTTPException(400, "messages is required")
+
+    if mock:
+        from gemini_flash import mock_chat
+        last_msg = messages[-1].get("content", "")
+        text = mock_chat(last_msg, [f"TC de {body_part}"])
+        return {"response": text}
+    else:
+        from gemini_flash import _call_gemini
+
+        system = (
+            "Voce e um radiologista especialista em tomografia computadorizada. "
+            "Responda perguntas sobre a analise de TC fornecida. "
+            "Sempre responda em portugues brasileiro (pt-BR). "
+            "Inclua um aviso de que isto e apenas para fins educacionais.\n\n"
+            f"Contexto da analise - {series_name} ({body_part}):\n{response_text[:1500]}"
+        )
+
+        contents = []
+        for msg in messages:
+            role = "user" if msg["role"] == "user" else "model"
+            contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+
+        text = _call_gemini(contents, system_instruction=system, max_output_tokens=2048)
+        return {"response": text}
+
+
+@app.post("/api/ct/suggest-questions")
+async def ct_suggest_questions_endpoint(request: Request):
+    """Generate suggested questions for a CT analysis."""
+    body = await request.json()
+    body_part = body.get("body_part", "")
+    mock = body.get("mock", False)
+
+    questions = [
+        f"Quais sao os achados mais importantes nesta TC de {body_part.lower()}?",
+        f"A anatomia do(a) {body_part.lower()} esta normal neste exame?",
+        "Quais patologias devem ser investigadas com base nestes achados?",
+        "Como interpretar sistematicamente uma TC como esta?",
+        "Quais sao os diagnosticos diferenciais mais relevantes?",
+        "Que exames complementares seriam uteis neste caso?",
+    ]
+    return {"questions": questions}

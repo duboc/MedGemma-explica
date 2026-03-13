@@ -100,6 +100,30 @@ export interface StructureFinding {
   clinical_note: string;
 }
 
+// CT Scan types
+export interface CTSampleSeries {
+  id: string;
+  name: string;
+  description: string;
+  body_part: string;
+  num_slices: number;
+}
+
+export interface CTAnalysisResult {
+  id: string;
+  series_id: string;
+  series_name: string;
+  body_part: string;
+  query: string;
+  response_text: string;
+  num_slices: number;
+  created_at?: string;
+  updated_at?: string;
+  mock?: boolean;
+  deep_dive?: { level: string; explanation: DeepDiveResult | string };
+  chat_messages?: ChatMessage[];
+}
+
 export function getStructureNames(result: AnalysisResult): string[] {
   return result.structure_names ?? [result.object_name];
 }

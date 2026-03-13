@@ -1,10 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
+import LandingPage from './LandingPage.tsx'
 import App from './App.tsx'
+import CTApp from './CTApp.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/xray" element={<App />} />
+        <Route path="/ct" element={<CTApp />} />
+      </Routes>
+    </BrowserRouter>
   </StrictMode>,
 )
