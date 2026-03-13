@@ -2160,30 +2160,52 @@ h2 {
 }
 
 .ct-result-header {
-  padding: 1rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e8e8e8;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #eef2f7 100%);
+  border-bottom: 1px solid #e0e4ea;
   border-radius: 8px 8px 0 0;
 }
 
+.ct-result-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
 .ct-result-series {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 0.4rem;
 }
 
 .ct-result-meta {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rv-badge--live {
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .ct-result-query {
   font-size: 0.85rem;
   color: #555;
   line-height: 1.4;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
+}
+
+.ct-result-query-label {
+  font-weight: 600;
+  color: var(--primary-dark);
 }
 
 .ct-analysis-content {

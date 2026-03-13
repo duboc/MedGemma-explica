@@ -107,6 +107,7 @@ export interface CTSampleSeries {
   description: string;
   body_part: string;
   num_slices: number;
+  default_query?: string;
 }
 
 export interface CTAnalysisResult {

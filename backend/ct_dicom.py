@@ -39,6 +39,11 @@ CT_SAMPLES = [
         "num_slices": 133,
         "collection": "lidc_idri",
         "total_instances": 133,
+        "default_query": (
+            "Analise sistematicamente esta TC de torax. Avalie o parenquima pulmonar, "
+            "vias aereas, mediastino, estruturas vasculares e parede toracica. "
+            "Descreva os achados, impressao diagnostica e recomendacoes."
+        ),
     },
     {
         "id": "abdomen_ct",
@@ -50,6 +55,11 @@ CT_SAMPLES = [
         "num_slices": 80,
         "collection": "c4kc_kits",
         "total_instances": 80,
+        "default_query": (
+            "Analise sistematicamente esta TC de abdome. Avalie os rins, figado, "
+            "baco, pancreas, aorta e estruturas retroperitoneais. "
+            "Identifique lesoes focais, calcificacoes ou massas e forneca a impressao diagnostica."
+        ),
     },
     {
         "id": "head_ct",
@@ -61,6 +71,11 @@ CT_SAMPLES = [
         "num_slices": 95,
         "collection": "cptac_aml",
         "total_instances": 95,
+        "default_query": (
+            "Analise sistematicamente esta TC de cranio. Avalie o parenquima cerebral, "
+            "sistema ventricular, estruturas da fossa posterior, ossos do cranio e "
+            "tecidos moles. Identifique assimetrias, lesoes ou desvios da linha media."
+        ),
     },
 ]
 
@@ -185,26 +200,38 @@ def fetch_rendered_slices(study_uid: str, series_uid: str, max_slices: int = MAX
 
 def _build_ct_system_prompt() -> str:
     return (
-        "Voce e um radiologista especialista em tomografia computadorizada. "
-        "Analise as fatias de TC fornecidas e responda a consulta do usuario. "
+        "Voce e um radiologista especialista em tomografia computadorizada, "
+        "atuando como professor em um hospital universitario. "
+        "Analise as fatias de TC fornecidas com rigor tecnico e didatico. "
         "As imagens sao fatias representativas amostradas uniformemente ao longo da serie. "
         "Sempre responda em portugues brasileiro (pt-BR). "
+        "Use terminologia medica adequada com explicacoes acessiveis. "
         "Inclua um aviso de que esta analise e apenas para fins educacionais."
     )
 
 
 def _build_ct_query_prompt(query: str, num_slices: int, total_slices: int) -> str:
     return (
-        f"Voce esta vendo {num_slices} fatias representativas de uma serie de TC "
-        f"com {total_slices} fatias no total, amostradas uniformemente.\n\n"
-        f"Analise estas imagens e responda:\n\n"
-        f"{query}\n\n"
-        f"Forneca uma analise detalhada em portugues brasileiro, incluindo:\n"
-        f"1. Descricao dos achados principais\n"
-        f"2. Impressao diagnostica\n"
-        f"3. Correlacao clinica relevante\n"
-        f"4. Recomendacoes (se aplicavel)\n\n"
-        f"IMPORTANTE: Esta analise e apenas para fins educacionais."
+        f"Voce esta analisando {num_slices} fatias representativas de uma serie de TC "
+        f"com {total_slices} fatias no total, amostradas uniformemente ao longo do volume.\n\n"
+        f"Consulta do usuario:\n{query}\n\n"
+        f"Forneca uma analise COMPLETA e ESTRUTURADA em portugues brasileiro, "
+        f"usando os seguintes cabecalhos em Markdown:\n\n"
+        f"## Tecnica\n"
+        f"Descreva brevemente o tipo de exame (com/sem contraste, fase, orientacao).\n\n"
+        f"## Achados\n"
+        f"Descreva sistematicamente todos os achados relevantes, organizados por "
+        f"regiao anatomica. Use sub-topicos quando apropriado. Inclua medidas "
+        f"estimadas e descricao de densidade/realce quando visiveis.\n\n"
+        f"## Impressao Diagnostica\n"
+        f"Liste as impressoes principais em ordem de relevancia clinica, numeradas.\n\n"
+        f"## Diagnosticos Diferenciais\n"
+        f"Para cada achado significativo, liste 2-3 diagnosticos diferenciais.\n\n"
+        f"## Correlacao Clinica e Recomendacoes\n"
+        f"Sugira correlacao com dados clinicos, exames complementares ou "
+        f"acompanhamento quando indicado.\n\n"
+        f"> **Aviso**: Esta analise e apenas para fins educacionais e demonstrativos. "
+        f"Nao deve ser utilizada para diagnostico clinico real."
     )
 
 
@@ -278,43 +305,152 @@ def analyze_ct(series_id: str, query: str) -> dict:
     }
 
 
+_MOCK_TEXTS = {
+    "chest_ct": """## Tecnica
+
+Tomografia computadorizada de torax sem contraste endovenoso, adquirida em inspiracao profunda, com cortes axiais de 1mm de espessura. Reconstrucoes em janela pulmonar e mediastinal.
+
+## Achados
+
+### Parenquima Pulmonar
+- **Pulmao direito**: Parenquima pulmonar com atenuacao preservada nos tres lobos. Nao ha consolidacoes, opacidades em vidro fosco ou nodulos suspeitos. Fissuras integras.
+- **Pulmao esquerdo**: Parenquima homogeneo nos lobos superior e inferior. Ausencia de massas ou areas de aprisionamento aereo.
+- **Vias aereas**: Traqueia na linha media, com calibre normal. Bronquios principais e lobares pervios, sem espessamento parietal ou impactacao mucoide.
+
+### Mediastino
+- **Linfonodos**: Nao ha linfonodomegalias mediastinais ou hilares significativas (< 10mm no menor eixo).
+- **Grandes vasos**: Aorta com calibre e trajeto normais. Arteria pulmonar principal sem dilatacao. Veia cava superior e inferior de calibre normal.
+- **Coracao**: Silhueta cardiaca de dimensoes normais. Ausencia de derrame pericardico.
+
+### Parede Toracica
+- Estruturas osseas sem lesoes liticas ou blasticas. Tecidos moles da parede toracica sem alteracoes.
+- Nao ha derrame pleural bilateral.
+
+## Impressao Diagnostica
+
+1. Tomografia computadorizada de torax dentro dos limites da normalidade.
+2. Ausencia de nodulos pulmonares, consolidacoes ou massas.
+3. Sem linfonodomegalias mediastinais ou hilares.
+
+## Diagnosticos Diferenciais
+
+Nao aplicavel neste caso, pois nao foram identificados achados patologicos significativos.
+
+## Correlacao Clinica e Recomendacoes
+
+- Correlacionar com dados clinicos e indicacao do exame.
+- Em pacientes de alto risco para neoplasia pulmonar, considerar acompanhamento conforme protocolos de rastreamento (Lung-RADS).
+- Comparar com exames previos quando disponiveis.
+
+> **Aviso**: Esta analise e apenas para fins educacionais e demonstrativos. Nao deve ser utilizada para diagnostico clinico real.""",
+
+    "abdomen_ct": """## Tecnica
+
+Tomografia computadorizada de abdome com contraste endovenoso, adquirida em fase arterial. Cortes axiais de 2.5mm de espessura com reconstrucoes multiplanares.
+
+## Achados
+
+### Rins
+- **Rim direito**: Identificada lesao solida no polo inferior do rim direito, com realce heterogeneo na fase arterial, medindo aproximadamente 4.1 x 4.3 cm. Contornos parcialmente irregulares, sem extensao para a gordura perirrenal.
+- **Rim esquerdo**: Dimensoes, contornos e atenuacao normais. Boa diferenciacao cortico-medular. Sistema coletor nao dilatado.
+- **Calculos**: Presenca de multiplas calcificacoes no grupo calicial inferior do rim direito, compativeis com litiase renal.
+
+### Figado e Vias Biliares
+- Figado de dimensoes e contornos normais, com atenuacao homogenea. Ausencia de lesoes focais hepaticas.
+- Vesicula biliar normodistendida, sem calculos. Vias biliares intra e extra-hepaticas de calibre normal.
+
+### Baco, Pancreas e Adrenais
+- Baco homogeneo, de dimensoes normais.
+- Pancreas com morfologia e atenuacao preservadas, sem dilatacao do ducto pancreatico principal.
+- Glandulas adrenais de aspecto habitual bilateralmente.
+
+### Estruturas Vasculares e Retroperitonio
+- Aorta abdominal de calibre normal, sem aneurismas ou disseccoes.
+- Nao ha linfonodomegalias retroperitoneais significativas.
+
+### Parede Abdominal
+- Hernia umbilical contendo gordura, sem sinais de encarceramento.
+
+## Impressao Diagnostica
+
+1. **Massa renal direita** (4.1 x 4.3 cm) com realce heterogeneo — altamente suspeita para carcinoma de celulas renais.
+2. Litiase renal a direita (multiplos calculos caliciais inferiores).
+3. Hernia umbilical contendo gordura, sem complicacoes.
+
+## Diagnosticos Diferenciais
+
+- **Massa renal**: Carcinoma de celulas renais (subtipo de celulas claras), oncocitoma, angiomiolipoma pobre em gordura, metastase renal.
+- **Calcificacoes renais**: Litiase por oxalato de calcio, nefrocalcinose focal.
+
+## Correlacao Clinica e Recomendacoes
+
+- Encaminhamento para urologia para avaliacao da massa renal. Considerar nefrectomia parcial vs radical.
+- Ressonancia magnetica dos rins para melhor caracterizacao da lesao e planejamento cirurgico.
+- Avaliacao laboratorial: funcao renal (creatinina, TFG), hemograma, LDH, calcio.
+- TC de torax para estadiamento, caso confirmada neoplasia renal.
+- Acompanhamento da litiase renal conforme sintomas.
+
+> **Aviso**: Esta analise e apenas para fins educacionais e demonstrativos. Nao deve ser utilizada para diagnostico clinico real.""",
+
+    "head_ct": """## Tecnica
+
+Tomografia computadorizada de cranio sem contraste endovenoso, adquirida em plano coronal com reconstrucoes multiplanares. Espessura de corte de 2.5mm.
+
+## Achados
+
+### Parenquima Cerebral
+- **Hemisferios cerebrais**: Parenquima cerebral com atenuacao normal e simetrica. Diferenciacao entre substancia branca e cinzenta preservada.
+- **Fossa posterior**: Cerebelo e tronco encefalico de morfologia e atenuacao normais.
+- **Linha media**: Estruturas da linha media centradas, sem desvios. Septo pelucido na posicao habitual.
+
+### Sistema Ventricular
+- Ventriculos laterais simetricos, de dimensoes normais para a faixa etaria.
+- Terceiro e quarto ventriculos de aspecto habitual, sem sinais de hidrocefalia.
+- Cisternas basais pervias.
+
+### Estruturas Extras-axiais
+- Espacos subaracnoideos compativeis com a faixa etaria, sem colecoes extras-axiais.
+- Ausencia de hematoma subdural, epidural ou hemorragia subaracnoidea.
+
+### Estruturas Osseas
+- Calota craniana integra, sem fraturas ou lesoes liticas/blasticas.
+- Base do cranio sem alteracoes significativas.
+- Seios paranasais e mastoide com pneumatizacao normal.
+
+### Orbitas e Tecidos Moles
+- Globos oculares e musculatura extrinseca simetricos.
+- Tecidos moles extracranians sem alteracoes.
+
+## Impressao Diagnostica
+
+1. Tomografia computadorizada de cranio sem evidencias de lesoes intracranianas agudas.
+2. Ausencia de hemorragias, efeito de massa ou desvio de linha media.
+3. Sistema ventricular de dimensoes normais, sem hidrocefalia.
+
+## Diagnosticos Diferenciais
+
+Nao aplicavel neste caso, pois nao foram identificados achados patologicos significativos. Em contexto clinico de cefaleia ou deficit neurologico, considerar:
+- Ressonancia magnetica para avaliacao de lesoes de substancia branca
+- Angio-TC para avaliacao vascular, se indicada
+
+## Correlacao Clinica e Recomendacoes
+
+- Correlacionar com dados clinicos e exame neurologico.
+- Em caso de trauma, reavaliacao em 24-48h se piora clinica.
+- Ressonancia magnetica do encefalo indicada para investigacao mais detalhada de queixas neurologicas, quando a TC e normal.
+- Considerar angio-TC ou angio-RM se suspeita de patologia vascular.
+
+> **Aviso**: Esta analise e apenas para fins educacionais e demonstrativos. Nao deve ser utilizada para diagnostico clinico real.""",
+}
+
+
 def mock_ct_analyze(series_id: str, query: str) -> dict:
     """Return canned CT analysis for mock/demo mode."""
     sample = next((s for s in CT_SAMPLES if s["id"] == series_id), None)
     if not sample:
         raise ValueError(f"Unknown CT series: {series_id}")
 
-    body_part = sample["body_part"]
-    mock_text = f"""## Analise de Tomografia Computadorizada - {body_part}
-
-### Achados Principais
-
-A serie de TC de {body_part.lower()} foi analisada sistematicamente. Os principais achados incluem:
-
-1. **Avaliacao Geral**: As estruturas anatomicas do(a) {body_part.lower()} apresentam-se dentro dos limites da normalidade em sua maioria.
-
-2. **Parenquima**: O parenquima avaliado apresenta densidade e textura preservadas, sem evidencias de lesoes focais significativas nesta avaliacao demonstrativa.
-
-3. **Estruturas Vasculares**: Os vasos principais apresentam calibre e trajeto normais. Nao ha evidencias de trombose ou dilatacao aneurismatica.
-
-4. **Tecidos Moles**: Os tecidos moles adjacentes apresentam aspecto preservado.
-
-### Impressao Diagnostica
-
-- Estudo tomografico de {body_part.lower()} sem alteracoes significativas nesta demonstracao educacional.
-- Os achados sao compativeis com anatomia normal.
-
-### Correlacao Clinica
-
-Esta analise deve ser correlacionada com os dados clinicos e historia do paciente. Estudos adicionais podem ser necessarios dependendo da indicacao clinica.
-
-### Consulta do Usuario
-
-**Pergunta**: {query}
-
-**Resposta**: Com base na analise desta serie de TC, os achados relacionados a sua pergunta sao detalhados acima. Em um contexto clinico real, esta avaliacao seria complementada com comparacao a exames anteriores e correlacao com dados laboratoriais.
-
-> **Aviso**: Esta analise e apenas para fins educacionais e demonstrativos. Nao deve ser utilizada para diagnostico clinico real."""
+    mock_text = _MOCK_TEXTS.get(series_id, "")
 
     doc_id = uuid.uuid4().hex
     return {

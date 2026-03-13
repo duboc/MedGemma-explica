@@ -50,6 +50,10 @@ export default function CTApp() {
     setSelectedSeriesId(sample.id);
     setResult(null);
     setError(null);
+    // Pre-fill the query with the sample's default
+    if (sample.default_query) {
+      setQuery(sample.default_query);
+    }
     // Load frames for the viewer
     setFrames([]);
     setFramesLoading(true);

@@ -11,7 +11,7 @@ import { renderMarkdownToHtml } from "../utils/markdown";
 type TabKey = "analise" | "explain" | "chat";
 
 const TAB_CONFIG: { key: TabKey; label: string; icon: string; desc: string }[] = [
-  { key: "analise", label: "Analise", icon: "\u{1F4CB}", desc: "Resultado da analise" },
+  { key: "analise", label: "Laudo", icon: "\u{1F4CB}", desc: "Resultado da analise" },
   { key: "explain", label: "Deep Dive", icon: "\u{1F393}", desc: "Aprofundamento educacional" },
   { key: "chat", label: "Perguntas", icon: "\u{1F4AC}", desc: "Tire duvidas" },
 ];
@@ -51,14 +51,20 @@ export default function CTResultViewer({ result, mockMode, onResultUpdated }: Pr
     <div className="rv">
       {/* Series info strip */}
       <div className="ct-result-header">
-        <div className="ct-result-series">{result.series_name}</div>
-        <div className="ct-result-meta">
-          <span className="ct-series-tag">{result.body_part}</span>
-          <span className="ct-series-slices">{result.num_slices} fatias</span>
-          {result.mock && <span className="rv-badge">Demo</span>}
+        <div className="ct-result-top-row">
+          <div className="ct-result-series">{result.series_name}</div>
+          <div className="ct-result-meta">
+            <span className="ct-series-tag">{result.body_part}</span>
+            <span className="ct-series-slices">{result.num_slices} fatias analisadas</span>
+            {result.mock ? (
+              <span className="rv-badge">Demo</span>
+            ) : (
+              <span className="rv-badge rv-badge--live">MedGemma</span>
+            )}
+          </div>
         </div>
         <div className="ct-result-query">
-          <strong>Consulta:</strong> {result.query}
+          <span className="ct-result-query-label">Consulta:</span> {result.query}
         </div>
       </div>
 
@@ -123,6 +129,9 @@ const SECTION_ICONS: Record<string, string> = {
   stethoscope: "\u{1FA7A}",
   lightbulb: "\u{1F4A1}",
   clipboard: "\u{1F4CB}",
+  microscope: "\u{1F52C}",
+  brain: "\u{1F9E0}",
+  book: "\u{1F4D6}",
 };
 
 function isStructuredResult(val: unknown): val is DeepDiveResult {
@@ -147,7 +156,8 @@ function CTExplainPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(["identification", "normal_vs_abnormal", "clinical_connections", "study_tips", "content"])
+    new Set(["tecnica", "anatomia", "achados_normal_anormal", "correlacao_clinica", "dicas_interpretacao",
+             "identification", "normal_vs_abnormal", "clinical_connections", "study_tips", "content"])
   );
 
   const handleExplain = async () => {
@@ -188,8 +198,8 @@ function CTExplainPanel({
   return (
     <div className="explain-panel">
       <div className="explain-header">
-        <h3>CT Deep Dive</h3>
-        <span className="rv-badge">Gemini</span>
+        <h3>Aprofundamento Educacional</h3>
+        <span className="rv-badge">Gemini Flash</span>
       </div>
 
       <div className="explain-controls">
@@ -207,8 +217,8 @@ function CTExplainPanel({
         </div>
         <button className="explain-generate-btn" onClick={handleExplain} disabled={loading}>
           {loading ? (
-            <><span className="spinner" /> Analisando...</>
-          ) : deepDive ? "Regenerar" : "Gerar Deep Dive"}
+            <><span className="spinner" /> Gerando material educacional...</>
+          ) : deepDive ? "Regenerar Aprofundamento" : "Gerar Aprofundamento Educacional"}
         </button>
       </div>
 

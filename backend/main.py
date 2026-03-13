@@ -545,6 +545,7 @@ def ct_list_samples():
             "description": s["description"],
             "body_part": s["body_part"],
             "num_slices": s["num_slices"],
+            "default_query": s.get("default_query", ""),
         }
         for s in CT_SAMPLES
     ]
@@ -664,6 +665,85 @@ async def ct_update_analysis(doc_id: str, request: Request):
     raise HTTPException(404, "CT analysis not found")
 
 
+CT_DEEP_DIVE_PROMPT = """Voce e um professor de radiologia em um hospital universitario brasileiro.
+Converta esta analise de TC em um material educacional estruturado em JSON para um aluno de nivel "{level}".
+
+ANALISE DA TC ({series_name} - {body_part}):
+{raw_text}
+
+Retorne APENAS JSON valido (sem markdown fences), seguindo este esquema exato:
+{{
+  "title": "Deep Dive Educacional: {series_name}",
+  "sections": [
+    {{
+      "id": "tecnica",
+      "title": "Entendendo a Tecnica",
+      "icon": "eye",
+      "content": "Explique a tecnica do exame, o que significa cada parametro e por que foi escolhida",
+      "key_points": [
+        {{"term": "conceito tecnico", "detail": "explicacao didatica"}}
+      ]
+    }},
+    {{
+      "id": "anatomia",
+      "title": "Anatomia na TC",
+      "icon": "eye",
+      "content": "Visao geral das estruturas anatomicas visiveis neste exame",
+      "key_points": [
+        {{"term": "estrutura anatomica", "detail": "como identificar e o que avaliar"}}
+      ]
+    }},
+    {{
+      "id": "achados_normal_anormal",
+      "title": "Achados: Normal vs. Patologico",
+      "icon": "balance",
+      "comparisons": [
+        {{
+          "structure": "nome da estrutura ou regiao",
+          "normal": "aparencia normal na TC",
+          "abnormal_signs": ["sinal patologico 1", "sinal patologico 2", "sinal patologico 3"],
+          "this_image": "o que foi encontrado NESTE exame especificamente"
+        }}
+      ]
+    }},
+    {{
+      "id": "correlacao_clinica",
+      "title": "Correlacao Clinica",
+      "icon": "stethoscope",
+      "connections": [
+        {{
+          "condition": "condicao clinica",
+          "relevance": "por que e relevante para os achados deste exame",
+          "what_to_look_for": "sinais especificos na TC que ajudam no diagnostico"
+        }}
+      ]
+    }},
+    {{
+      "id": "dicas_interpretacao",
+      "title": "Dicas de Interpretacao",
+      "icon": "lightbulb",
+      "tips": [
+        {{
+          "tip": "dica pratica de interpretacao",
+          "why": "por que esta dica e importante"
+        }}
+      ]
+    }}
+  ],
+  "disclaimer": "Esta explicacao e apenas para fins educacionais."
+}}
+
+Regras:
+- Extraia TODAS as informacoes relevantes da analise fornecida
+- Inclua pelo menos 4-6 key_points na secao de anatomia
+- Inclua uma comparacao para cada regiao anatomica avaliada na analise
+- Inclua pelo menos 4 correlacoes clinicas relevantes para os achados
+- Inclua pelo menos 4 dicas de interpretacao especificas para TC
+- Seja especifico para os achados DESTE exame, nao generico
+- Adapte a linguagem ao nivel: pre_med (basico), medical_student (intermediario), resident (avancado), attending (especialista)
+- ESCREVA TODO o conteudo em portugues brasileiro (pt-BR). Mantenha as chaves JSON em ingles."""
+
+
 @app.post("/api/ct/explain")
 async def ct_explain_endpoint(request: Request):
     """Generate an educational deep dive for a CT analysis (text-based, no DICOM re-send)."""
@@ -676,12 +756,40 @@ async def ct_explain_endpoint(request: Request):
 
     if mock:
         from deep_dive import mock_deep_dive
-        return {"explanation": mock_deep_dive([f"TC de {body_part}"], level)}
+        result = mock_deep_dive([f"TC de {body_part}"], level)
+        # Override title for CT context
+        result["title"] = f"Deep Dive Educacional: TC de {body_part}"
+        return {"explanation": result}
     else:
         from gemini_flash import _call_gemini
-        from deep_dive import structure_deep_dive
         try:
-            structured = structure_deep_dive(response_text, [f"TC de {body_part}"], level)
+            prompt = CT_DEEP_DIVE_PROMPT.format(
+                level=level,
+                series_name=series_name,
+                body_part=body_part,
+                raw_text=response_text[:3000],
+            )
+            contents = [{"role": "user", "parts": [{"text": prompt}]}]
+            response = _call_gemini(
+                contents,
+                system_instruction="Voce e um formatador de dados educacionais. Retorne APENAS JSON valido, sem markdown fences.",
+                response_mime_type="application/json",
+                max_output_tokens=4096,
+            )
+
+            import json as _json
+            import re as _re
+
+            # Extract JSON from response
+            json_match = _re.search(r"```(?:json)?\s*(.*?)\s*```", response, _re.DOTALL)
+            if json_match:
+                response = json_match.group(1)
+            start = response.find("{")
+            end = response.rfind("}") + 1
+            if start >= 0 and end > start:
+                response = response[start:end]
+
+            structured = _json.loads(response)
             structured["level"] = level
             structured["disclaimer"] = (
                 "Esta explicacao e apenas para fins educacionais e nao deve ser "
@@ -689,7 +797,7 @@ async def ct_explain_endpoint(request: Request):
             )
             return {"explanation": structured}
         except Exception as e:
-            logger.error(f"CT explain failed: {e}")
+            logger.error(f"CT explain failed: {e}\n{traceback.format_exc()}")
             return {
                 "explanation": {
                     "title": f"Deep Dive: TC de {body_part}",
