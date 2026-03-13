@@ -1,12 +1,30 @@
-"""CT Scan analysis module — DICOMweb-based CT series from IDC public data."""
+"""CT Scan analysis module — DICOMweb-based CT series from IDC public data.
 
+Uses rendered PNG frames from the Healthcare API DICOM store, sent as
+regular base64 image_url messages to MedGemma.
+
+Architecture note:
+  Google's official CT notebook uses the `image_dicom` message type, where
+  the model fetches DICOM data directly from a DICOMweb store. Our MedGemma
+  endpoint does not support `image_dicom` (returns 400 "Unknown part type"),
+  so we use a rendered-frame fallback: download pre-rendered PNGs via the
+  DICOMweb /rendered endpoint and send them as standard image_url base64
+  parts. This trades off slice count (12 vs 85) and windowing control for
+  broader endpoint compatibility. See docs/ct-architecture.md for details.
+"""
+
+import base64
 import logging
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 from config import settings
 
 logger = logging.getLogger(__name__)
+
+# Max slices to send to MedGemma (balances detail vs payload size)
+MAX_SLICES_FOR_ANALYSIS = 12
 
 # Pre-configured IDC sample series (verified against idc-index + gs://idc-open-data)
 # Source: Imaging Data Commons (IDC) public archive
@@ -18,7 +36,7 @@ CT_SAMPLES = [
         "study_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.298806137288633453246975630178",
         "series_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.179049373636438705059720603192",
         "body_part": "Torax",
-        "num_slices": 85,
+        "num_slices": 133,
         "collection": "lidc_idri",
         "total_instances": 133,
     },
@@ -40,7 +58,7 @@ CT_SAMPLES = [
         "study_uid": "1.3.6.1.4.1.14519.5.2.1.1427.3349.118556328257187014252521570906",
         "series_uid": "1.3.6.1.4.1.14519.5.2.1.1427.3349.154376491757826959383232464810",
         "body_part": "Cranio",
-        "num_slices": 85,
+        "num_slices": 95,
         "collection": "cptac_aml",
         "total_instances": 95,
     },
@@ -67,17 +85,11 @@ def _get_access_token() -> str:
     return credentials.token
 
 
-def fetch_dicom_instance_urls(study_uid: str, series_uid: str, max_slices: int = 85) -> tuple[list[str], str]:
-    """Fetch instance URLs from DICOMweb, ordered by InstanceNumber, sampled to max_slices.
-
-    Returns (list of DICOMweb instance URLs, access token).
-    """
+def _fetch_instance_sop_uids(study_uid: str, series_uid: str, access_token: str) -> list[str]:
+    """Fetch all instance SOP UIDs for a series, sorted by InstanceNumber."""
     import requests
 
-    access_token = _get_access_token()
     base = _dicomweb_base_url()
-
-    # Fetch instance metadata to get InstanceNumbers
     metadata_url = f"{base}/studies/{study_uid}/series/{series_uid}/instances"
     resp = requests.get(
         metadata_url,
@@ -98,38 +110,96 @@ def fetch_dicom_instance_urls(study_uid: str, series_uid: str, max_slices: int =
 
     instances.sort(key=instance_number)
 
-    # Sample evenly if more than max_slices
-    if len(instances) > max_slices:
-        step = len(instances) / max_slices
-        indices = [int(i * step) for i in range(max_slices)]
-        instances = [instances[i] for i in indices]
-
-    # Build DICOMweb retrieve URLs
-    urls = []
+    # Extract SOP Instance UIDs
+    sop_uids = []
     for inst in instances:
-        sop_uid_tag = inst.get("00080018", {})
-        sop_uid = sop_uid_tag.get("Value", [""])[0]
+        sop_uid = inst.get("00080018", {}).get("Value", [""])[0]
         if sop_uid:
-            url = f"{base}/studies/{study_uid}/series/{series_uid}/instances/{sop_uid}"
-            urls.append(url)
+            sop_uids.append(sop_uid)
+    return sop_uids
 
-    return urls, access_token
+
+def _sample_indices(total: int, max_samples: int) -> list[int]:
+    """Return evenly spaced indices to sample from a sequence."""
+    if total <= max_samples:
+        return list(range(total))
+    step = total / max_samples
+    return [int(i * step) for i in range(max_samples)]
+
+
+def _fetch_rendered_frame(study_uid: str, series_uid: str, sop_uid: str, access_token: str) -> bytes:
+    """Download a rendered PNG frame for a single DICOM instance."""
+    import requests
+
+    base = _dicomweb_base_url()
+    url = f"{base}/studies/{study_uid}/series/{series_uid}/instances/{sop_uid}/rendered"
+    resp = requests.get(
+        url,
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "image/png",
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.content
+
+
+def fetch_rendered_slices(study_uid: str, series_uid: str, max_slices: int = MAX_SLICES_FOR_ANALYSIS) -> list[str]:
+    """Fetch evenly-sampled rendered PNG slices as base64 strings.
+
+    Returns list of base64-encoded PNG strings.
+    """
+    access_token = _get_access_token()
+
+    # Get all instance SOP UIDs sorted by InstanceNumber
+    all_sop_uids = _fetch_instance_sop_uids(study_uid, series_uid, access_token)
+    if not all_sop_uids:
+        raise ValueError("No DICOM instances found for this series")
+
+    # Sample evenly
+    indices = _sample_indices(len(all_sop_uids), max_slices)
+    sampled_uids = [all_sop_uids[i] for i in indices]
+
+    logger.info(f"Fetching {len(sampled_uids)} rendered slices from {len(all_sop_uids)} total instances")
+
+    # Download rendered frames in parallel
+    b64_slices = []
+
+    def _download(sop_uid: str) -> str:
+        png_bytes = _fetch_rendered_frame(study_uid, series_uid, sop_uid, access_token)
+        return base64.b64encode(png_bytes).decode("utf-8")
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        futures = {pool.submit(_download, uid): idx for idx, uid in enumerate(sampled_uids)}
+        results: dict[int, str] = {}
+        for future in futures:
+            idx = futures[future]
+            results[idx] = future.result()
+
+    # Maintain slice order
+    b64_slices = [results[i] for i in range(len(sampled_uids))]
+
+    return b64_slices
 
 
 def _build_ct_system_prompt() -> str:
     return (
         "Voce e um radiologista especialista em tomografia computadorizada. "
-        "Analise a serie de TC fornecida e responda a consulta do usuario. "
+        "Analise as fatias de TC fornecidas e responda a consulta do usuario. "
+        "As imagens sao fatias representativas amostradas uniformemente ao longo da serie. "
         "Sempre responda em portugues brasileiro (pt-BR). "
         "Inclua um aviso de que esta analise e apenas para fins educacionais."
     )
 
 
-def _build_ct_query_prompt(query: str) -> str:
+def _build_ct_query_prompt(query: str, num_slices: int, total_slices: int) -> str:
     return (
-        f"Analise esta serie de tomografia computadorizada e responda:\n\n"
+        f"Voce esta vendo {num_slices} fatias representativas de uma serie de TC "
+        f"com {total_slices} fatias no total, amostradas uniformemente.\n\n"
+        f"Analise estas imagens e responda:\n\n"
         f"{query}\n\n"
-        f"Forneça uma analise detalhada em portugues brasileiro, incluindo:\n"
+        f"Forneca uma analise detalhada em portugues brasileiro, incluindo:\n"
         f"1. Descricao dos achados principais\n"
         f"2. Impressao diagnostica\n"
         f"3. Correlacao clinica relevante\n"
@@ -139,22 +209,34 @@ def _build_ct_query_prompt(query: str) -> str:
 
 
 def analyze_ct(series_id: str, query: str) -> dict:
-    """Analyze a CT series using MedGemma with image_dicom message type."""
+    """Analyze a CT series by fetching rendered slices and sending as base64 images."""
     from vertex_ai import _call_medgemma
 
     sample = next((s for s in CT_SAMPLES if s["id"] == series_id), None)
     if not sample:
         raise ValueError(f"Unknown CT series: {series_id}")
 
-    # Fetch DICOM instance URLs and auth token
-    instance_urls, access_token = fetch_dicom_instance_urls(
-        sample["study_uid"], sample["series_uid"], sample["num_slices"]
+    # Fetch rendered PNG slices as base64
+    b64_slices = fetch_rendered_slices(
+        sample["study_uid"],
+        sample["series_uid"],
+        MAX_SLICES_FOR_ANALYSIS,
     )
 
-    if not instance_urls:
-        raise ValueError("No DICOM instances found for this series")
+    if not b64_slices:
+        raise ValueError("No rendered slices could be fetched")
 
-    # Build MedGemma message with image_dicom type
+    # Build image content parts
+    image_parts = [
+        {
+            "type": "image_url",
+            "image_url": {"url": f"data:image/png;base64,{b64}"},
+        }
+        for b64 in b64_slices
+    ]
+
+    prompt_text = _build_ct_query_prompt(query, len(b64_slices), sample["total_instances"])
+
     messages = [
         {
             "role": "system",
@@ -163,17 +245,8 @@ def analyze_ct(series_id: str, query: str) -> dict:
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": _build_ct_query_prompt(query)},
-                {
-                    "type": "image_dicom",
-                    "image_dicom": {
-                        "dicom_web_urls": instance_urls,
-                        "dicom_web_auth": {
-                            "auth_type": "bearer",
-                            "bearer_token": access_token,
-                        },
-                    },
-                },
+                {"type": "text", "text": prompt_text},
+                *image_parts,
             ],
         },
     ]
@@ -199,7 +272,7 @@ def analyze_ct(series_id: str, query: str) -> dict:
         "body_part": sample["body_part"],
         "query": query,
         "response_text": response_text.strip(),
-        "num_slices": len(instance_urls),
+        "num_slices": len(b64_slices),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "mock": False,
     }
