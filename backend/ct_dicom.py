@@ -8,34 +8,41 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-# Pre-configured IDC sample series (Google's public DICOM store)
+# Pre-configured IDC sample series (verified against idc-index + gs://idc-open-data)
+# Source: Imaging Data Commons (IDC) public archive
 CT_SAMPLES = [
     {
-        "id": "liver_lesion",
-        "name": "CT Abdome - Lesao Hepatica",
-        "description": "TC de abdome com contraste mostrando lesao hepatica focal. Serie axial de fase portal.",
+        "id": "chest_ct",
+        "name": "CT Torax - LIDC-IDRI",
+        "description": "TC de torax do dataset LIDC-IDRI. Serie axial com 133 fatias para avaliacao do parenquima pulmonar.",
         "study_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.298806137288633453246975630178",
         "series_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.179049373636438705059720603192",
-        "body_part": "Abdome",
-        "num_slices": 85,
-    },
-    {
-        "id": "chest_ct",
-        "name": "CT Torax - Avaliacao Pulmonar",
-        "description": "TC de torax sem contraste para avaliacao do parenquima pulmonar. Serie axial com janela pulmonar.",
-        "study_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.511347030803753871132694033474",
-        "series_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.141365756818074696859567662357",
         "body_part": "Torax",
         "num_slices": 85,
+        "collection": "lidc_idri",
+        "total_instances": 133,
+    },
+    {
+        "id": "abdomen_ct",
+        "name": "CT Abdome - KiTS (Rim)",
+        "description": "TC de abdome com contraste do dataset C4KC-KiTS. Serie arterial com 80 fatias para avaliacao renal.",
+        "study_uid": "1.3.6.1.4.1.14519.5.2.1.6919.4624.281900760004329249859708333415",
+        "series_uid": "1.3.6.1.4.1.14519.5.2.1.6919.4624.395226006158762829136614161357",
+        "body_part": "Abdome",
+        "num_slices": 80,
+        "collection": "c4kc_kits",
+        "total_instances": 80,
     },
     {
         "id": "head_ct",
-        "name": "CT Cranio - Avaliacao Cerebral",
-        "description": "TC de cranio sem contraste para avaliacao de estruturas intracranianas.",
-        "study_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.143451261327128179989900675595",
-        "series_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.430109407146633213496148556143",
+        "name": "CT Cranio - CPTAC-AML",
+        "description": "TC de cranio sem contraste do dataset CPTAC-AML. Serie coronal com 95 fatias para avaliacao cerebral.",
+        "study_uid": "1.3.6.1.4.1.14519.5.2.1.1427.3349.118556328257187014252521570906",
+        "series_uid": "1.3.6.1.4.1.14519.5.2.1.1427.3349.154376491757826959383232464810",
         "body_part": "Cranio",
         "num_slices": 85,
+        "collection": "cptac_aml",
+        "total_instances": 95,
     },
 ]
 
