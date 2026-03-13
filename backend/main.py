@@ -378,6 +378,7 @@ async def update_analysis_endpoint(doc_id: str, request: Request, mock: bool = F
     if mock:
         for a in _mock_analyses:
             if a["id"] == doc_id:
+                updates["updated_at"] = datetime.now(timezone.utc).isoformat()
                 a.update(updates)
                 return {"status": "updated", "fields": list(updates.keys())}
         raise HTTPException(404, "Analysis not found")

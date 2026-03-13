@@ -70,6 +70,7 @@ def update_analysis(doc_id: str, fields: dict) -> None:
     """Update specific fields on an existing analysis document."""
     client = get_firestore_client()
     doc_ref = client.collection(settings.firestore_collection).document(doc_id)
+    fields["updated_at"] = datetime.now(timezone.utc).isoformat()
     doc_ref.update(fields)
 
 

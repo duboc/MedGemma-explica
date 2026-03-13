@@ -12,6 +12,7 @@ import {
   clearAllAnalyses,
   deleteAnalysis,
   fetchAnalyses,
+  fetchAnalysis,
   fetchSamples,
   fetchStructures,
   resolveImageUrl,
@@ -103,8 +104,15 @@ export default function App() {
     }
   };
 
-  const handleHistorySelect = (analysis: AnalysisResult) => {
-    setResult(analysis);
+  const handleHistorySelect = async (analysis: AnalysisResult) => {
+    // Fetch full analysis (includes PATCH'd fields: deep_dive, findings_report, etc.)
+    try {
+      const full = await fetchAnalysis(analysis.id, mockMode);
+      setResult(full);
+    } catch {
+      // Fallback to list item if fetch fails
+      setResult(analysis);
+    }
     setPreviewUrl(resolveImageUrl(analysis.image_url));
     const names = analysis.structure_names ?? [analysis.object_name];
     setSelectedStructures(names);

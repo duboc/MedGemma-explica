@@ -1,0 +1,93 @@
+[
+  {
+    "test": "localization_ptbr",
+    "elapsed_s": 7.4,
+    "boxes_found": 2,
+    "boxes": [
+      {
+        "box_2d": [
+          275,
+          375,
+          775,
+          675
+        ],
+        "label": "coração"
+      },
+      {
+        "box_2d": [
+          210,
+          110,
+          1020,
+          860
+        ],
+        "label": "pulmões"
+      }
+    ],
+    "language": {
+      "likely_portuguese": false,
+      "marker_count": 1,
+      "markers_found": [
+        "coração"
+      ]
+    },
+    "response_length": 1805,
+    "labels_in_portuguese": true
+  },
+  {
+    "test": "explanation_ptbr",
+    "elapsed_s": 13.4,
+    "language": {
+      "likely_portuguese": true,
+      "marker_count": 28,
+      "markers_found": [
+        "pulmão",
+        "coração",
+        "tórax",
+        "radiografia",
+        "estrutura",
+        "anatomia",
+        "clínica",
+        "análise",
+        "imagem",
+        "normal"
+      ]
+    },
+    "sections_found": {
+      "o_que_voce_ve": true,
+      "normal_anormal": true,
+      "conexoes_clinicas": true,
+      "dicas_estudo": true
+    },
+    "all_sections_present": true,
+    "response_length": 5888
+  },
+  {
+    "test": "chat_ptbr",
+    "elapsed_s": 6.2,
+    "language": {
+      "likely_portuguese": true,
+      "marker_count": 26,
+      "markers_found": [
+        "pulmão",
+        "coração",
+        "tórax",
+        "radiografia",
+        "estrutura",
+        "análise",
+        "imagem",
+        "normal",
+        "médico",
+        "paciente"
+      ]
+    },
+    "medical_terms_pt_found": [
+      "consolidação",
+      "opacidade",
+      "broncograma",
+      "pneumonia",
+      "lobo inferior",
+      "silhueta"
+    ],
+    "response_length": 2893
+  }
+]

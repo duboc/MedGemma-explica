@@ -35,6 +35,7 @@ export interface AnalysisResult {
   educational_info: EducationalInfo;
   educational_infos?: EducationalInfo[];
   created_at?: string;
+  updated_at?: string;
   mock?: boolean;
   // Persisted sub-results
   deep_dive?: { level: string; explanation: DeepDiveResult | string };
