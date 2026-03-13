@@ -9,10 +9,9 @@ import {
 import { renderMarkdownToHtml } from "../utils/markdown";
 import CTFindingsReport from "./CTFindingsReport";
 
-type TabKey = "analise" | "laudo" | "explain" | "chat";
+type TabKey = "laudo" | "explain" | "chat";
 
 const TAB_CONFIG: { key: TabKey; label: string; icon: string; desc: string }[] = [
-  { key: "analise", label: "Analise", icon: "\u{1F4DD}", desc: "Texto da analise" },
   { key: "laudo", label: "Laudo", icon: "\u{1F4CB}", desc: "Laudo estruturado" },
   { key: "explain", label: "Deep Dive", icon: "\u{1F393}", desc: "Aprofundamento educacional" },
   { key: "chat", label: "Perguntas", icon: "\u{1F4AC}", desc: "Tire duvidas" },
@@ -25,10 +24,10 @@ interface Props {
 }
 
 export default function CTResultViewer({ result, mockMode, onResultUpdated }: Props) {
-  const [activeTab, setActiveTab] = useState<TabKey>("analise");
+  const [activeTab, setActiveTab] = useState<TabKey>("laudo");
 
   useEffect(() => {
-    setActiveTab("analise");
+    setActiveTab("laudo");
   }, [result.id]);
 
   const saveField = useCallback(
@@ -45,7 +44,6 @@ export default function CTResultViewer({ result, mockMode, onResultUpdated }: Pr
   const hasSavedReport = !!(result as CTAnalysisResult & { ct_report?: CTReport }).ct_report;
 
   const savedMap: Record<TabKey, boolean> = {
-    analise: true,
     laudo: hasSavedReport,
     explain: hasSavedDive,
     chat: !!hasSavedChat,
@@ -89,15 +87,6 @@ export default function CTResultViewer({ result, mockMode, onResultUpdated }: Pr
 
       {/* Tab content */}
       <div className="rv-content">
-        {activeTab === "analise" && (
-          <div className="ct-analysis-content">
-            <div
-              className="ct-analysis-text"
-              dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(result.response_text) }}
-            />
-          </div>
-        )}
-
         {activeTab === "laudo" && (
           <CTFindingsReport
             result={result}
