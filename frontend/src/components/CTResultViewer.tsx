@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import type { CTAnalysisResult, ChatMessage, DeepDiveResult, DeepDiveSection } from "../types";
+import type { CTAnalysisResult, CTReport, ChatMessage, DeepDiveResult, DeepDiveSection } from "../types";
 import {
   explainCtAnalysis,
   chatCtAnalysis,
@@ -7,11 +7,13 @@ import {
   updateCtAnalysis,
 } from "../hooks/useCtApi";
 import { renderMarkdownToHtml } from "../utils/markdown";
+import CTFindingsReport from "./CTFindingsReport";
 
-type TabKey = "analise" | "explain" | "chat";
+type TabKey = "analise" | "laudo" | "explain" | "chat";
 
 const TAB_CONFIG: { key: TabKey; label: string; icon: string; desc: string }[] = [
-  { key: "analise", label: "Laudo", icon: "\u{1F4CB}", desc: "Resultado da analise" },
+  { key: "analise", label: "Analise", icon: "\u{1F4DD}", desc: "Texto da analise" },
+  { key: "laudo", label: "Laudo", icon: "\u{1F4CB}", desc: "Laudo estruturado" },
   { key: "explain", label: "Deep Dive", icon: "\u{1F393}", desc: "Aprofundamento educacional" },
   { key: "chat", label: "Perguntas", icon: "\u{1F4AC}", desc: "Tire duvidas" },
 ];
@@ -40,9 +42,11 @@ export default function CTResultViewer({ result, mockMode, onResultUpdated }: Pr
 
   const hasSavedDive = !!result.deep_dive;
   const hasSavedChat = result.chat_messages && result.chat_messages.length > 0;
+  const hasSavedReport = !!(result as CTAnalysisResult & { ct_report?: CTReport }).ct_report;
 
   const savedMap: Record<TabKey, boolean> = {
     analise: true,
+    laudo: hasSavedReport,
     explain: hasSavedDive,
     chat: !!hasSavedChat,
   };
@@ -92,6 +96,14 @@ export default function CTResultViewer({ result, mockMode, onResultUpdated }: Pr
               dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(result.response_text) }}
             />
           </div>
+        )}
+
+        {activeTab === "laudo" && (
+          <CTFindingsReport
+            result={result}
+            mockMode={mockMode}
+            onSave={(report) => saveField("ct_report", report)}
+          />
         )}
 
         {activeTab === "explain" && (

@@ -665,6 +665,30 @@ async def ct_update_analysis(doc_id: str, request: Request):
     raise HTTPException(404, "CT analysis not found")
 
 
+@app.post("/api/ct/parse-report")
+async def ct_parse_report_endpoint(request: Request):
+    """Parse MedGemma CT analysis into structured JSON via Gemini Flash."""
+    body = await request.json()
+    response_text = body.get("response_text", "")
+    body_part = body.get("body_part", "")
+    mock = body.get("mock", False)
+
+    if not response_text:
+        raise HTTPException(400, "response_text is required")
+
+    if mock:
+        from ct_findings_report import mock_ct_report
+        return {"report": mock_ct_report(body_part, response_text)}
+    else:
+        from ct_findings_report import parse_ct_report
+        try:
+            report = parse_ct_report(response_text, body_part)
+            return {"report": report}
+        except Exception as e:
+            logger.error(f"CT report parsing failed: {e}\n{traceback.format_exc()}")
+            raise HTTPException(500, f"Failed to parse CT report: {str(e)}")
+
+
 CT_DEEP_DIVE_PROMPT = """Voce e um professor de radiologia em um hospital universitario brasileiro.
 Converta esta analise de TC em um material educacional estruturado em JSON para um aluno de nivel "{level}".
 

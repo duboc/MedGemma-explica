@@ -122,7 +122,57 @@ export interface CTAnalysisResult {
   updated_at?: string;
   mock?: boolean;
   deep_dive?: { level: string; explanation: DeepDiveResult | string };
+  ct_report?: CTReport;
   chat_messages?: ChatMessage[];
+}
+
+// CT structured report types
+export interface CTTecnica {
+  tipo_exame: string;
+  plano: string;
+  espessura: string;
+  contraste: string;
+  observacoes: string;
+}
+
+export interface CTSubitem {
+  estrutura: string;
+  achado: string;
+  medidas: string;
+  relevancia: "alta" | "media" | "baixa";
+}
+
+export interface CTAchado {
+  regiao: string;
+  status: "normal" | "alterado" | "inconclusivo";
+  descricao: string;
+  subitens: CTSubitem[];
+}
+
+export interface CTImpressao {
+  numero: number;
+  descricao: string;
+  gravidade: "critico" | "importante" | "menor" | "normal";
+}
+
+export interface CTDiferencial {
+  achado: string;
+  opcoes: string[];
+}
+
+export interface CTRecomendacao {
+  tipo: "exame" | "acompanhamento" | "encaminhamento" | "laboratorio";
+  descricao: string;
+  urgencia: "imediata" | "breve" | "eletiva";
+}
+
+export interface CTReport {
+  tecnica: CTTecnica;
+  achados: CTAchado[];
+  impressao: CTImpressao[];
+  diferenciais: CTDiferencial[];
+  recomendacoes: CTRecomendacao[];
+  disclaimer: string;
 }
 
 export function getStructureNames(result: AnalysisResult): string[] {

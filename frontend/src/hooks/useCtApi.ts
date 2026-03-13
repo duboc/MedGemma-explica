@@ -125,6 +125,24 @@ export async function chatCtAnalysis(
   return res.json();
 }
 
+export async function parseCtReport(
+  responseText: string,
+  bodyPart: string,
+  mock = false
+) {
+  const res = await fetch(`${API_BASE}/api/ct/parse-report`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ response_text: responseText, body_part: bodyPart, mock }),
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: "Report parsing failed" }));
+    throw new Error(error.detail || "Report parsing failed");
+  }
+  const data = await res.json();
+  return data.report;
+}
+
 export async function suggestCtQuestions(bodyPart: string, mock = false) {
   const res = await fetch(`${API_BASE}/api/ct/suggest-questions`, {
     method: "POST",
