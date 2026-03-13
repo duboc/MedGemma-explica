@@ -5,12 +5,14 @@ import Header from "./components/Header";
 import HistoryPanel from "./components/HistoryPanel";
 import CTSeriesPicker from "./components/CTSeriesPicker";
 import CTResultViewer from "./components/CTResultViewer";
+import CTSliceViewer from "./components/CTSliceViewer";
 import {
   analyzeCtSeries,
   clearAllCtAnalyses,
   deleteCtAnalysis,
   fetchCtAnalyses,
   fetchCtAnalysis,
+  fetchCtFrames,
   fetchCtSamples,
 } from "./hooks/useCtApi";
 import type { CTAnalysisResult, CTSampleSeries } from "./types";
@@ -24,6 +26,9 @@ export default function CTApp() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CTAnalysisResult | null>(null);
   const [history, setHistory] = useState<CTAnalysisResult[]>([]);
+  const [frames, setFrames] = useState<string[]>([]);
+  const [framesTotalInstances, setFramesTotalInstances] = useState(0);
+  const [framesLoading, setFramesLoading] = useState(false);
 
   const refreshHistory = useCallback(() => {
     fetchCtAnalyses(20)
@@ -45,6 +50,19 @@ export default function CTApp() {
     setSelectedSeriesId(sample.id);
     setResult(null);
     setError(null);
+    // Load frames for the viewer
+    setFrames([]);
+    setFramesLoading(true);
+    fetchCtFrames(sample.id, 30)
+      .then((data) => {
+        setFrames(data.frames);
+        setFramesTotalInstances(data.total_instances);
+      })
+      .catch(() => {
+        // Frames are optional — viewer just won't show
+        setFrames([]);
+      })
+      .finally(() => setFramesLoading(false));
   }, []);
 
   const handleAnalyze = async () => {
@@ -119,6 +137,14 @@ export default function CTApp() {
             selected={selectedSeriesId}
             onSelect={handleSeriesSelected}
           />
+
+          {(frames.length > 0 || framesLoading) && (
+            <CTSliceViewer
+              frames={frames}
+              totalInstances={framesTotalInstances}
+              loading={framesLoading}
+            />
+          )}
 
           <div className="ct-query-section">
             <label className="ct-query-label" htmlFor="ct-query">

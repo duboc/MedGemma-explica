@@ -6,6 +6,17 @@ export async function fetchCtSamples() {
   return res.json();
 }
 
+export async function fetchCtFrames(
+  seriesId: string,
+  maxSlices = 30
+): Promise<{ frames: string[]; total_instances: number; num_frames: number }> {
+  const res = await fetch(
+    `${API_BASE}/api/ct/frames/${seriesId}?max_slices=${maxSlices}`
+  );
+  if (!res.ok) throw new Error("Failed to fetch CT frames");
+  return res.json();
+}
+
 export async function analyzeCtSeries(
   seriesId: string,
   query: string,

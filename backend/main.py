@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
 from config import settings
-from ct_dicom import CT_SAMPLES, mock_ct_analyze
+from ct_dicom import CT_SAMPLES, fetch_rendered_slices, mock_ct_analyze
 from image_processing import pad_image_to_square
 from vertex_ai import ANATOMY_INFO, get_educational_info, mock_predict
 
@@ -548,6 +548,34 @@ def ct_list_samples():
         }
         for s in CT_SAMPLES
     ]
+
+
+@app.get("/api/ct/frames/{series_id}")
+async def ct_get_frames(series_id: str, max_slices: int = 30):
+    """Fetch rendered PNG frames for a CT series (for the slice viewer).
+
+    Returns base64-encoded PNG strings sampled evenly across the volume.
+    max_slices caps how many frames to return (default 30, max 80).
+    """
+    sample = next((s for s in CT_SAMPLES if s["id"] == series_id), None)
+    if not sample:
+        raise HTTPException(400, f"Unknown series_id: {series_id}")
+
+    max_slices = min(max_slices, 80)
+
+    try:
+        slices = fetch_rendered_slices(
+            sample["study_uid"], sample["series_uid"], max_slices
+        )
+        return {
+            "series_id": series_id,
+            "frames": slices,
+            "total_instances": sample["total_instances"],
+            "num_frames": len(slices),
+        }
+    except Exception as e:
+        logger.error(f"Failed to fetch CT frames: {e}\n{traceback.format_exc()}")
+        raise HTTPException(500, f"Failed to fetch CT frames: {str(e)}")
 
 
 @app.post("/api/ct/analyze")
