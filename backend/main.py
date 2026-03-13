@@ -66,13 +66,6 @@ SAMPLE_IMAGES = [
         "source": "NLM OpenI / PMC4663864 (Open Access)",
         "description": "Normal chest X-ray from NIH Open-i collection.",
     },
-    {
-        "id": "openi_pa",
-        "name": "PA View with Cardiomegaly (OpenI)",
-        "filename": "openi_cxr_pa_2.png",
-        "source": "NLM OpenI / PMC3354864 (Open Access)",
-        "description": "PA chest X-ray showing cardiac enlargement, useful for comparing heart size.",
-    },
 ]
 
 # In-memory store for mock analyses
