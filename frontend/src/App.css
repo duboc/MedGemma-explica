@@ -1885,6 +1885,16 @@ h2 {
   object-fit: cover;
 }
 
+.history-card-thumb-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.6rem;
+  background: #e8f0fe;
+}
+
 .history-card-label {
   font-size: 0.7rem;
   font-weight: 500;

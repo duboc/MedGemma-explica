@@ -59,13 +59,17 @@ export default function HistoryPanel({
                 onClick={() => onSelect(a)}
               >
                 <div className="history-card-thumb">
-                  <img
-                    src={resolveImageUrl(a.image_url)}
-                    alt={`X-ray: ${a.object_name}`}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
+                  {a.image_url ? (
+                    <img
+                      src={resolveImageUrl(a.image_url)}
+                      alt={a.object_name}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <span className="history-card-thumb-icon">{"\u{1FA7B}"}</span>
+                  )}
                 </div>
                 <span className="history-card-label">{a.object_name}</span>
                 {savedCount > 0 && (

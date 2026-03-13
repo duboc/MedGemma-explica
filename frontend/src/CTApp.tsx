@@ -18,7 +18,7 @@ import {
 import type { CTAnalysisResult, CTSampleSeries } from "./types";
 
 export default function CTApp() {
-  const [mockMode, setMockMode] = useState(true);
+  const [mockMode, setMockMode] = useState(false);
   const [samples, setSamples] = useState<CTSampleSeries[]>([]);
   const [selectedSeriesId, setSelectedSeriesId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
