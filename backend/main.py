@@ -8,7 +8,9 @@ from datetime import datetime, timezone
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from pathlib import Path
+
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
@@ -72,7 +74,7 @@ SAMPLE_IMAGES = [
 # In-memory store for mock analyses
 _mock_analyses: list[dict] = []
 _LOCAL_UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
-_SAMPLE_XRAYS_DIR = os.path.join(os.path.dirname(__file__), "..", "sample-xrays")
+_SAMPLE_XRAYS_DIR = os.path.join(os.path.dirname(__file__), "sample-xrays")
 
 
 def _ensure_uploads_dir():
@@ -894,3 +896,17 @@ async def ct_suggest_questions_endpoint(request: Request):
         "Que exames complementares seriam uteis neste caso?",
     ]
     return {"questions": questions}
+
+
+# --- Serve frontend static files (single-container deployment) ---
+STATIC_DIR = Path(__file__).parent / "static"
+if STATIC_DIR.is_dir():
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="frontend-assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """Serve frontend SPA — any non-API route returns index.html."""
+        file_path = STATIC_DIR / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(STATIC_DIR / "index.html")
