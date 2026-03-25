@@ -101,7 +101,7 @@
   display: flex;
   gap: 1.5rem;
   padding: 1.25rem 2rem;
-  max-width: 1500px;
+  max-width: 1800px;
   margin: 0 auto;
   min-height: calc(100vh - 260px);
 }
@@ -1953,6 +1953,18 @@ h2 {
 }
 
 /* ===== Responsive ===== */
+@media (max-width: 1400px) {
+  .solution-panel {
+    width: 280px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .solution-panel {
+    display: none;
+  }
+}
+
 @media (max-width: 1000px) {
   .workspace {
     flex-direction: column;
@@ -2809,3 +2821,51 @@ h2 {
     font-size: 1.6rem;
   }
 }
+
+/* ===== Solution panel (third column) ===== */
+.solution-panel {
+  width: 340px;
+  flex-shrink: 0;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  position: sticky;
+  top: 1rem;
+}
+
+/* ===== Solution Tab (sidebar architecture) ===== */
+.solution-tab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.sol-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary);
+}
+
+.sol-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sol-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Architecture SVG diagram */
+.sol-arch-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 1rem;
+}
+

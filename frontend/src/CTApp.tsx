@@ -6,6 +6,7 @@ import HistoryPanel from "./components/HistoryPanel";
 import CTSeriesPicker from "./components/CTSeriesPicker";
 import CTResultViewer from "./components/CTResultViewer";
 import CTSliceViewer from "./components/CTSliceViewer";
+import SolutionTab from "./components/SolutionTab";
 import {
   analyzeCtSeries,
   clearAllCtAnalyses,
@@ -183,7 +184,7 @@ export default function CTApp() {
           {error && <div className="error-message">{error}</div>}
         </div>
 
-        {/* Right: Results */}
+        {/* Center: Results */}
         <div className="results-panel">
           {result ? (
             <CTResultViewer
@@ -201,6 +202,11 @@ export default function CTApp() {
               </p>
             </div>
           )}
+        </div>
+
+        {/* Right: Solution */}
+        <div className="solution-panel">
+          <SolutionTab mode="ct" />
         </div>
       </div>
 

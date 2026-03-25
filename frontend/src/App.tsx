@@ -6,6 +6,7 @@ import HistoryPanel from "./components/HistoryPanel";
 import ImageUploader from "./components/ImageUploader";
 import ResultViewer from "./components/ResultViewer";
 import SamplePicker from "./components/SamplePicker";
+import SolutionTab from "./components/SolutionTab";
 import StructureSelector, { ALL_STRUCTURES } from "./components/StructureSelector";
 import {
   analyzeImage,
@@ -184,7 +185,7 @@ export default function App() {
           {error && <div className="error-message">{error}</div>}
         </div>
 
-        {/* Right: Results */}
+        {/* Center: Results */}
         <div className="results-panel">
           {result ? (
             <ResultViewer
@@ -195,13 +196,18 @@ export default function App() {
           ) : (
             <div className="results-empty">
               <div className="results-empty-icon">&#x1F50D;</div>
-              <h3>Nenhuma análise ainda</h3>
+              <h3>Nenhuma analise ainda</h3>
               <p>
-                Envie ou selecione uma radiografia de tórax, escolha uma ou mais
-                estruturas anatômicas e clique em Analisar para ver os resultados aqui.
+                Envie ou selecione uma radiografia de torax, escolha uma ou mais
+                estruturas anatomicas e clique em Analisar para ver os resultados aqui.
               </p>
             </div>
           )}
+        </div>
+
+        {/* Right: Solution */}
+        <div className="solution-panel">
+          <SolutionTab mode="xray" />
         </div>
       </div>
 
